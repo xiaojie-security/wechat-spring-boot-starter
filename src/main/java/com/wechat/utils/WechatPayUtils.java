@@ -69,6 +69,10 @@ public final class WechatPayUtils {
         return content.substring(0, maxLength);
     }
 
+    private static String logPrefix(String methodName) {
+        return "WechatPayUtils." + methodName + " ";
+    }
+
 
 
     /**
@@ -95,7 +99,7 @@ public final class WechatPayUtils {
         try {
             return new String(Files.readAllBytes(Paths.get(keyPath)), StandardCharsets.UTF_8);
         } catch (IOException e) {
-            log.error("读取密钥文件失败，keyPath={}", keyPath, e);
+            log.error("{}读取密钥文件失败，keyPath={}", logPrefix("readKeyStringFromPath"), keyPath, e);
             throw new UncheckedIOException("读取密钥文件失败，路径：" + keyPath, e);
         }
     }
@@ -114,13 +118,13 @@ public final class WechatPayUtils {
             return KeyFactory.getInstance("RSA").generatePrivate(
                     new PKCS8EncodedKeySpec(Base64.getDecoder().decode(keyString)));
         } catch (IllegalArgumentException e) {
-            log.error("加载RSA私钥失败，私钥内容不是合法的Base64编码", e);
+            log.error("{}加载RSA私钥失败，私钥内容不是合法的Base64编码", logPrefix("loadPrivateKeyFromString"), e);
             throw new IllegalArgumentException("私钥内容格式不正确，请确认私钥内容为合法的Base64编码", e);
         } catch (NoSuchAlgorithmException e) {
-            log.error("加载RSA私钥失败，当前Java环境不支持RSA算法", e);
+            log.error("{}加载RSA私钥失败，当前Java环境不支持RSA算法", logPrefix("loadPrivateKeyFromString"), e);
             throw new UnsupportedOperationException("当前Java环境不支持RSA私钥解析", e);
         } catch (InvalidKeySpecException e) {
-            log.error("加载RSA私钥失败，私钥格式不合法", e);
+            log.error("{}加载RSA私钥失败，私钥格式不合法", logPrefix("loadPrivateKeyFromString"), e);
             throw new IllegalArgumentException("私钥格式不正确，请确认使用PKCS#8格式私钥", e);
         }
     }
@@ -149,13 +153,13 @@ public final class WechatPayUtils {
             return KeyFactory.getInstance("RSA").generatePublic(
                     new X509EncodedKeySpec(Base64.getDecoder().decode(keyString)));
         } catch (IllegalArgumentException e) {
-            log.error("加载RSA公钥失败，公钥内容不是合法的Base64编码", e);
+            log.error("{}加载RSA公钥失败，公钥内容不是合法的Base64编码", logPrefix("loadPublicKeyFromString"), e);
             throw new IllegalArgumentException("公钥内容格式不正确，请确认公钥内容为合法的Base64编码", e);
         } catch (NoSuchAlgorithmException e) {
-            log.error("加载RSA公钥失败，当前Java环境不支持RSA算法", e);
+            log.error("{}加载RSA公钥失败，当前Java环境不支持RSA算法", logPrefix("loadPublicKeyFromString"), e);
             throw new UnsupportedOperationException("当前Java环境不支持RSA公钥解析", e);
         } catch (InvalidKeySpecException e) {
-            log.error("加载RSA公钥失败，公钥格式不合法", e);
+            log.error("{}加载RSA公钥失败，公钥格式不合法", logPrefix("loadPublicKeyFromString"), e);
             throw new IllegalArgumentException("公钥格式不正确，请确认使用X509格式公钥", e);
         }
     }
@@ -196,13 +200,13 @@ public final class WechatPayUtils {
             cipher.init(Cipher.ENCRYPT_MODE, publicKey);
             return Base64.getEncoder().encodeToString(cipher.doFinal(plaintext.getBytes(StandardCharsets.UTF_8)));
         } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
-            log.error("RSA加密失败，当前Java环境不支持算法：{}", transformation, e);
+            log.error("{}RSA加密失败，当前Java环境不支持算法：{}", logPrefix("encrypt"), transformation, e);
             throw new IllegalArgumentException("当前Java环境不支持" + transformation + "加密算法", e);
         } catch (InvalidKeyException e) {
-            log.error("RSA加密失败，公钥不合法", e);
+            log.error("{}RSA加密失败，公钥不合法", logPrefix("encrypt"), e);
             throw new IllegalArgumentException("公钥不合法，无法进行RSA加密", e);
         } catch (BadPaddingException | IllegalBlockSizeException e) {
-            log.error("RSA加密失败，明文长度超出限制");
+            log.error("{}RSA加密失败，明文长度超出限制", logPrefix("encrypt"));
             throw new IllegalArgumentException("待加密明文过长，已超出RSA加密长度限制", e);
         }
     }
@@ -223,16 +227,16 @@ public final class WechatPayUtils {
             byte[] decryptedBytes = cipher.doFinal(Base64.getDecoder().decode(ciphertext));
             return new String(decryptedBytes, StandardCharsets.UTF_8);
         } catch (IllegalArgumentException e) {
-            log.error("RSA解密失败，密文不是合法的Base64编码", e);
+            log.error("{}RSA解密失败，密文不是合法的Base64编码", logPrefix("rsaOaepDecrypt"), e);
             throw new IllegalArgumentException("密文格式不正确，请确认密文内容为合法的Base64编码", e);
         } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
-            log.error("RSA解密失败，当前Java环境不支持算法：{}", transformation, e);
+            log.error("{}RSA解密失败，当前Java环境不支持算法：{}", logPrefix("rsaOaepDecrypt"), transformation, e);
             throw new IllegalArgumentException("当前Java环境不支持" + transformation + "解密算法", e);
         } catch (InvalidKeyException e) {
-            log.error("RSA解密失败，私钥不合法", e);
+            log.error("{}RSA解密失败，私钥不合法", logPrefix("rsaOaepDecrypt"), e);
             throw new IllegalArgumentException("私钥不合法，无法进行RSA解密", e);
         } catch (BadPaddingException | IllegalBlockSizeException e) {
-            log.error("RSA解密失败，密文无法被当前私钥解密", e);
+            log.error("{}RSA解密失败，密文无法被当前私钥解密", logPrefix("rsaOaepDecrypt"), e);
             throw new IllegalArgumentException("密文解密失败，请确认密文内容和私钥是否匹配", e);
         }
     }
@@ -259,7 +263,7 @@ public final class WechatPayUtils {
                  | IllegalBlockSizeException
                  | NoSuchAlgorithmException
                  | NoSuchPaddingException e) {
-            log.error("AES解密失败，transformation={}", transformation, e);
+            log.error("{}AES解密失败，transformation={}", logPrefix("aesAeadDecrypt"), transformation, e);
             throw new IllegalArgumentException("AES/GCM解密失败，请确认APIv3密钥、附加数据、随机串和密文是否正确", e);
         }
     }
@@ -280,13 +284,13 @@ public final class WechatPayUtils {
             signature.update(message.getBytes(StandardCharsets.UTF_8));
             sign = signature.sign();
         } catch (NoSuchAlgorithmException e) {
-            log.error("生成签名失败，当前Java环境不支持签名算法：{}", algorithm, e);
+            log.error("{}生成签名失败，当前Java环境不支持签名算法：{}", logPrefix("sign"), algorithm, e);
             throw new UnsupportedOperationException("当前Java环境不支持签名算法：" + algorithm, e);
         } catch (InvalidKeyException e) {
-            log.error("生成签名失败，私钥不合法，algorithm={}", algorithm, e);
+            log.error("{}生成签名失败，私钥不合法，algorithm={}", logPrefix("sign"), algorithm, e);
             throw new IllegalArgumentException("私钥不合法，无法使用" + algorithm + "生成签名", e);
         } catch (SignatureException e) {
-            log.error("生成签名失败，algorithm={}", algorithm, e);
+            log.error("{}生成签名失败，algorithm={}", logPrefix("sign"), algorithm, e);
             throw new RuntimeException("签名处理失败", e);
         }
         return Base64.getEncoder().encodeToString(sign);
@@ -309,16 +313,16 @@ public final class WechatPayUtils {
             sign.update(message.getBytes(StandardCharsets.UTF_8));
             return sign.verify(Base64.getDecoder().decode(signature));
         } catch (IllegalArgumentException e) {
-            log.warn("签名校验失败，签名内容不是合法的Base64编码，algorithm={}", algorithm, e);
+            log.warn("{}签名校验失败，签名内容不是合法的Base64编码，algorithm={}", logPrefix("verify"), algorithm, e);
             return false;
         } catch (SignatureException e) {
-            log.warn("签名校验失败，签名内容格式异常，algorithm={}", algorithm, e);
+            log.warn("{}签名校验失败，签名内容格式异常，algorithm={}", logPrefix("verify"), algorithm, e);
             return false;
         } catch (InvalidKeyException e) {
-            log.error("验签失败，公钥不合法，algorithm={}", algorithm, e);
+            log.error("{}验签失败，公钥不合法，algorithm={}", logPrefix("verify"), algorithm, e);
             throw new IllegalArgumentException("公钥不合法，无法进行签名校验", e);
         } catch (NoSuchAlgorithmException e) {
-            log.error("验签失败，当前Java环境不支持签名算法：{}", algorithm, e);
+            log.error("{}验签失败，当前Java环境不支持签名算法：{}", logPrefix("verify"), algorithm, e);
             throw new UnsupportedOperationException("当前Java环境不支持签名算法：" + algorithm, e);
         }
     }
@@ -377,10 +381,10 @@ public final class WechatPayUtils {
             }
             return hexString.toString();
         } catch (NoSuchAlgorithmException e) {
-            log.error("计算摘要失败，当前Java环境不支持算法：{}", algorithm, e);
+            log.error("{}计算摘要失败，当前Java环境不支持算法：{}", logPrefix("calculateHash"), algorithm, e);
             throw new UnsupportedOperationException("当前Java环境不支持摘要算法：" + algorithm, e);
         } catch (IOException e) {
-            log.error("计算摘要失败，读取输入流异常，algorithm={}", algorithm, e);
+            log.error("{}计算摘要失败，读取输入流异常，algorithm={}", logPrefix("calculateHash"), algorithm, e);
             throw new RuntimeException("读取输入流失败，无法计算摘要", e);
         }
     }
@@ -437,7 +441,7 @@ public final class WechatPayUtils {
             }
             return hexString.toString();
         } catch (IOException e) {
-            log.error("计算SM3摘要失败，读取输入流异常", e);
+            log.error("{}计算SM3摘要失败，读取输入流异常", logPrefix("sm3"), e);
             throw new RuntimeException("读取输入流失败，无法计算SM3摘要", e);
         }
     }
@@ -452,7 +456,7 @@ public final class WechatPayUtils {
         try {
             return URLEncoder.encode(content, StandardCharsets.UTF_8.name());
         } catch (UnsupportedEncodingException e) {
-            log.error("URL编码失败，content={}", content, e);
+            log.error("{}URL编码失败，content={}", logPrefix("urlEncode"), content, e);
             throw new RuntimeException("URL编码失败", e);
         }
     }
@@ -529,7 +533,7 @@ public final class WechatPayUtils {
             BufferedSource source = response.body().source();
             return source.readUtf8();
         } catch (IOException e) {
-            log.error("读取微信支付响应体失败，statusCode={}", response.code(), e);
+            log.error("{}读取微信支付响应体失败，statusCode={}", logPrefix("extractBody"), response.code(), e);
             throw new RuntimeException(String.format("读取响应体失败，HTTP状态码：%d", response.code()), e);
         }
     }
@@ -551,21 +555,23 @@ public final class WechatPayUtils {
             Instant responseTime = Instant.ofEpochSecond(Long.parseLong(timestamp));
             // 拒绝过期请求
             if (Duration.between(responseTime, Instant.now()).abs().toMinutes() >= SIGNATURE_EXPIRE_MINUTES) {
-                log.warn("微信支付应答验签失败，请求时间已过期，requestId={}, timestamp={}", requestId, timestamp);
+                log.warn("{}微信支付应答验签失败，请求时间已过期，requestId={}, timestamp={}",
+                        logPrefix("validateResponse"), requestId, timestamp);
                 throw new IllegalArgumentException(
                         String.format("微信支付应答验签失败，请求时间已过期，timestamp=[%s]，requestId=[%s]",
                                 timestamp, requestId));
             }
         } catch (DateTimeException | NumberFormatException e) {
-            log.warn("微信支付应答验签失败，时间戳非法，requestId={}, timestamp={}", requestId, timestamp, e);
+            log.warn("{}微信支付应答验签失败，时间戳非法，requestId={}, timestamp={}",
+                    logPrefix("validateResponse"), requestId, timestamp, e);
             throw new IllegalArgumentException(
                     String.format("微信支付应答验签失败，时间戳无效，timestamp=[%s]，requestId=[%s]",
                             timestamp, requestId));
         }
         String serialNumber = headers.get("Wechatpay-Serial");
         if (!Objects.equals(serialNumber, wechatpayPublicKeyId)) {
-            log.warn("微信支付应答验签失败，平台证书序列号不匹配，requestId={}, localSerial={}, remoteSerial={}",
-                    requestId, wechatpayPublicKeyId, serialNumber);
+            log.warn("{}微信支付应答验签失败，平台证书序列号不匹配，requestId={}, localSerial={}, remoteSerial={}",
+                    logPrefix("validateResponse"), requestId, wechatpayPublicKeyId, serialNumber);
             throw new IllegalArgumentException(
                     String.format("微信支付应答验签失败，平台证书序列号不匹配，本地=[%s]，远端=[%s]",
                             wechatpayPublicKeyId, serialNumber));
@@ -577,8 +583,8 @@ public final class WechatPayUtils {
 
         boolean success = verify(message, signature, "SHA256withRSA", wechatpayPublicKey);
         if (!success) {
-            log.warn("微信支付应答验签失败，签名校验未通过，requestId={}, responseHeader={}, responseBody={}",
-                    requestId, headers, abbreviate(body, LOG_BODY_MAX_LENGTH));
+            log.warn("{}微信支付应答验签失败，签名校验未通过，requestId={}, responseHeader={}, responseBody={}",
+                    logPrefix("validateResponse"), requestId, headers, abbreviate(body, LOG_BODY_MAX_LENGTH));
             throw new IllegalArgumentException(
                     String.format("微信支付应答验签失败，签名不正确。%n"
                                     + "Request-ID[%s]\tresponseHeader[%s]\tresponseBody[%.1024s]",
@@ -601,19 +607,21 @@ public final class WechatPayUtils {
             Instant responseTime = Instant.ofEpochSecond(Long.parseLong(timestamp));
             // 拒绝过期请求
             if (Duration.between(responseTime, Instant.now()).abs().toMinutes() >= SIGNATURE_EXPIRE_MINUTES) {
-                log.warn("微信支付通知验签失败，请求时间已过期，timestamp={}", timestamp);
+                log.warn("{}微信支付通知验签失败，请求时间已过期，timestamp={}",
+                        logPrefix("validateNotification"), timestamp);
                 throw new IllegalArgumentException(
                         String.format("微信支付通知验签失败，请求时间已过期，timestamp=[%s]", timestamp));
             }
         } catch (DateTimeException | NumberFormatException e) {
-            log.warn("微信支付通知验签失败，时间戳非法，timestamp={}", timestamp, e);
+            log.warn("{}微信支付通知验签失败，时间戳非法，timestamp={}",
+                    logPrefix("validateNotification"), timestamp, e);
             throw new IllegalArgumentException(
                     String.format("微信支付通知验签失败，时间戳无效，timestamp=[%s]", timestamp));
         }
         String serialNumber = headers.get("Wechatpay-Serial");
         if (!Objects.equals(serialNumber, wechatpayPublicKeyId)) {
-            log.warn("微信支付通知验签失败，平台证书序列号不匹配，localSerial={}, remoteSerial={}",
-                    wechatpayPublicKeyId, serialNumber);
+            log.warn("{}微信支付通知验签失败，平台证书序列号不匹配，localSerial={}, remoteSerial={}",
+                    logPrefix("validateNotification"), wechatpayPublicKeyId, serialNumber);
             throw new IllegalArgumentException(
                     String.format("微信支付通知验签失败，平台证书序列号不匹配，本地=[%s]，远端=[%s]",
                             wechatpayPublicKeyId,
@@ -626,8 +634,8 @@ public final class WechatPayUtils {
 
         boolean success = verify(message, signature, "SHA256withRSA", wechatpayPublicKey);
         if (!success) {
-            log.warn("微信支付通知验签失败，签名校验未通过，responseHeader={}, responseBody={}",
-                    headers, abbreviate(body, LOG_BODY_MAX_LENGTH));
+            log.warn("{}微信支付通知验签失败，签名校验未通过，responseHeader={}, responseBody={}",
+                    logPrefix("validateNotification"), headers, abbreviate(body, LOG_BODY_MAX_LENGTH));
             throw new IllegalArgumentException(
                     String.format("微信支付通知验签失败，签名不正确。\n"
                                     + "responseHeader[%s]\tresponseBody[%.1024s]",
@@ -653,10 +661,12 @@ public final class WechatPayUtils {
             notification.decrypt(apiv3Key);
             return notification;
         } catch (JsonSyntaxException e) {
-            log.error("解析微信支付通知失败，通知报文不是合法的JSON，body={}", abbreviate(body, LOG_BODY_MAX_LENGTH), e);
+            log.error("{}解析微信支付通知失败，通知报文不是合法的JSON，body={}",
+                    logPrefix("parseNotification"), abbreviate(body, LOG_BODY_MAX_LENGTH), e);
             throw new IllegalArgumentException("解析微信支付通知失败，通知报文不是合法的JSON", e);
         } catch (RuntimeException e) {
-            log.error("处理微信支付通知失败，body={}", abbreviate(body, LOG_BODY_MAX_LENGTH), e);
+            log.error("{}处理微信支付通知失败，body={}",
+                    logPrefix("parseNotification"), abbreviate(body, LOG_BODY_MAX_LENGTH), e);
             throw e;
         }
     }
@@ -784,7 +794,7 @@ public final class WechatPayUtils {
 
         private void validate() {
             if (resource == null) {
-                log.warn("微信支付通知缺少resource字段");
+                log.warn("{}微信支付通知缺少resource字段", logPrefix("Notification.validate"));
                 throw new IllegalArgumentException("微信支付通知缺少必填字段：resource");
             }
             resource.validate();
@@ -801,7 +811,8 @@ public final class WechatPayUtils {
             try {
                 ciphertextBytes = Base64.getDecoder().decode(resource.ciphertext);
             } catch (IllegalArgumentException e) {
-                log.error("解密微信支付通知资源失败，ciphertext不是合法的Base64编码", e);
+                log.error("{}解密微信支付通知资源失败，ciphertext不是合法的Base64编码",
+                        logPrefix("Notification.decrypt"), e);
                 throw new IllegalArgumentException("微信支付通知资源密文格式不正确，请确认ciphertext为合法的Base64编码", e);
             }
             plaintext = aesAeadDecrypt(
@@ -850,31 +861,32 @@ public final class WechatPayUtils {
 
             private void validate() {
                 if (algorithm == null || algorithm.isEmpty()) {
-                    log.warn("微信支付通知资源缺少algorithm字段");
+                    log.warn("{}微信支付通知资源缺少algorithm字段", logPrefix("Notification.Resource.validate"));
                     throw new IllegalArgumentException("微信支付通知资源缺少必填字段：algorithm");
                 }
                 if (!Objects.equals(algorithm, "AEAD_AES_256_GCM")) {
-                    log.warn("微信支付通知资源算法不支持，algorithm={}", algorithm);
+                    log.warn("{}微信支付通知资源算法不支持，algorithm={}",
+                            logPrefix("Notification.Resource.validate"), algorithm);
                     throw new IllegalArgumentException(String.format("微信支付通知资源算法不受支持：[%s]", algorithm));
                 }
 
                 if (ciphertext == null || ciphertext.isEmpty()) {
-                    log.warn("微信支付通知资源缺少ciphertext字段");
+                    log.warn("{}微信支付通知资源缺少ciphertext字段", logPrefix("Notification.Resource.validate"));
                     throw new IllegalArgumentException("微信支付通知资源缺少必填字段：ciphertext");
                 }
 
                 if (associatedData == null || associatedData.isEmpty()) {
-                    log.warn("微信支付通知资源缺少associatedData字段");
+                    log.warn("{}微信支付通知资源缺少associatedData字段", logPrefix("Notification.Resource.validate"));
                     throw new IllegalArgumentException("微信支付通知资源缺少必填字段：associatedData");
                 }
 
                 if (nonce == null || nonce.isEmpty()) {
-                    log.warn("微信支付通知资源缺少nonce字段");
+                    log.warn("{}微信支付通知资源缺少nonce字段", logPrefix("Notification.Resource.validate"));
                     throw new IllegalArgumentException("微信支付通知资源缺少必填字段：nonce");
                 }
 
                 if (originalType == null || originalType.isEmpty()) {
-                    log.warn("微信支付通知资源缺少originalType字段");
+                    log.warn("{}微信支付通知资源缺少originalType字段", logPrefix("Notification.Resource.validate"));
                     throw new IllegalArgumentException("微信支付通知资源缺少必填字段：originalType");
                 }
             }
