@@ -7,6 +7,7 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.annotations.SerializedName;
 import java.util.List;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Headers;
 import okhttp3.Response;
@@ -20,7 +21,6 @@ import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -447,12 +447,7 @@ public final class WechatPayUtils {
      * @return 编码后的内容
      */
     public static String urlEncode(String content) {
-        try {
-            return URLEncoder.encode(content, StandardCharsets.UTF_8.name());
-        } catch (UnsupportedEncodingException e) {
-            log.error("WechatPayUtils.urlEncode URL编码失败，content={}", content, e);
-            throw new RuntimeException("URL编码失败", e);
-        }
+        return URLEncoder.encode(content, StandardCharsets.UTF_8);
     }
 
     /**
@@ -494,7 +489,7 @@ public final class WechatPayUtils {
      * @param value 属性值
      */
     private static void appendParam(StringBuilder result, String key, Object value) {
-        if (result.length() > 0) {
+        if (!result.isEmpty()) {
             result.append("&");
         }
 
@@ -546,9 +541,12 @@ public final class WechatPayUtils {
         String timestamp = headers.get("Wechatpay-Timestamp");
         String requestId = headers.get("Request-ID");
         try {
-            Instant responseTime = Instant.ofEpochSecond(Long.parseLong(timestamp));
+            Instant responseTime = null;
+            if (timestamp != null) {
+                responseTime = Instant.ofEpochSecond(Long.parseLong(timestamp));
+            }
             // 拒绝过期请求
-            if (Duration.between(responseTime, Instant.now()).abs().toMinutes() >= SIGNATURE_EXPIRE_MINUTES) {
+            if (responseTime != null && Duration.between(responseTime, Instant.now()).abs().toMinutes() >= SIGNATURE_EXPIRE_MINUTES) {
                 log.warn("WechatPayUtils.validateResponse 微信支付应答验签失败，请求时间已过期，requestId={}, timestamp={}",
                         requestId, timestamp);
                 throw new IllegalArgumentException(
@@ -598,9 +596,12 @@ public final class WechatPayUtils {
                                             String body) {
         String timestamp = headers.get("Wechatpay-Timestamp");
         try {
-            Instant responseTime = Instant.ofEpochSecond(Long.parseLong(timestamp));
+            Instant responseTime = null;
+            if (timestamp != null) {
+                responseTime = Instant.ofEpochSecond(Long.parseLong(timestamp));
+            }
             // 拒绝过期请求
-            if (Duration.between(responseTime, Instant.now()).abs().toMinutes() >= SIGNATURE_EXPIRE_MINUTES) {
+            if (responseTime != null && Duration.between(responseTime, Instant.now()).abs().toMinutes() >= SIGNATURE_EXPIRE_MINUTES) {
                 log.warn("WechatPayUtils.validateNotification 微信支付通知验签失败，请求时间已过期，timestamp={}",
                         timestamp);
                 throw new IllegalArgumentException(
@@ -668,13 +669,34 @@ public final class WechatPayUtils {
     /**
      * 微信支付API错误异常，发送HTTP请求成功，但返回状态码不是 2XX 时抛出本异常
      */
+    @Getter
     public static class ApiException extends RuntimeException {
         private static final long serialVersionUID = 2261086748874802175L;
 
+        /**
+         * -- GETTER --
+         *  获取 HTTP 应答状态码
+         */
         private final int statusCode;
+        /**
+         * -- GETTER --
+         *  获取 HTTP 应答包体内容
+         */
         private final String body;
+        /**
+         * -- GETTER --
+         *  获取 HTTP 应答 Header
+         */
         private final Headers headers;
+        /**
+         * -- GETTER --
+         *  获取 错误码 （错误应答中的 code 字段）
+         */
         private final String errorCode;
+        /**
+         * -- GETTER --
+         *  获取 错误消息 （错误应答中的 message 字段）
+         */
         private final String errorMessage;
 
         public ApiException(int statusCode, String body, Headers headers) {
@@ -704,42 +726,9 @@ public final class WechatPayUtils {
             }
         }
 
-        /**
-         * 获取 HTTP 应答状态码
-         */
-        public int getStatusCode() {
-            return statusCode;
-        }
-
-        /**
-         * 获取 HTTP 应答包体内容
-         */
-        public String getBody() {
-            return body;
-        }
-
-        /**
-         * 获取 HTTP 应答 Header
-         */
-        public Headers getHeaders() {
-            return headers;
-        }
-
-        /**
-         * 获取 错误码 （错误应答中的 code 字段）
-         */
-        public String getErrorCode() {
-            return errorCode;
-        }
-
-        /**
-         * 获取 错误消息 （错误应答中的 message 字段）
-         */
-        public String getErrorMessage() {
-            return errorMessage;
-        }
     }
 
+    @Getter
     public static class Notification {
         @SerializedName("id")
         private String id;
@@ -753,38 +742,11 @@ public final class WechatPayUtils {
         private String summary;
         @SerializedName("resource")
         private Notification.Resource resource;
-        private String plaintext;
-
-        public String getId() {
-            return id;
-        }
-
-        public String getCreateTime() {
-            return createTime;
-        }
-
-        public String getEventType() {
-            return eventType;
-        }
-
-        public String getResourceType() {
-            return resourceType;
-        }
-
-        public String getSummary() {
-            return summary;
-        }
-
-        public Notification.Resource getResource() {
-            return resource;
-        }
-
         /**
-         * 获取解密后的业务数据（JSON字符串，需要自行解析）
+         * -- GETTER --
+         *  获取解密后的业务数据（JSON字符串，需要自行解析）
          */
-        public String getPlaintext() {
-            return plaintext;
-        }
+        private String plaintext;
 
         private void validate() {
             if (resource == null) {
@@ -816,6 +778,7 @@ public final class WechatPayUtils {
             );
         }
 
+        @Getter
         public static class Resource {
             @SerializedName("algorithm")
             private String algorithm;
@@ -831,26 +794,6 @@ public final class WechatPayUtils {
 
             @SerializedName("original_type")
             private String originalType;
-
-            public String getAlgorithm() {
-                return algorithm;
-            }
-
-            public String getCiphertext() {
-                return ciphertext;
-            }
-
-            public String getAssociatedData() {
-                return associatedData;
-            }
-
-            public String getNonce() {
-                return nonce;
-            }
-
-            public String getOriginalType() {
-                return originalType;
-            }
 
             private void validate() {
                 if (algorithm == null || algorithm.isEmpty()) {
