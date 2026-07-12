@@ -43,9 +43,23 @@ public enum TransferBillStatus {
     SUCCESS,
 
     /**
+     * 转账失败。
+     * 表示该笔转账单据已失败，如需再次转账应重新生成单据发起。
+     */
+    @SerializedName("FAIL")
+    FAIL,
+
+    /**
      * 撤销中。
      * 表示该转账单正在进行撤销或关闭相关处理。
      */
     @SerializedName("CANCELING")
-    CANCELING
+    CANCELING,
+
+    /**
+     * 已撤销。
+     * 表示该笔转账单已成功撤销。
+     */
+    @SerializedName("CANCELLED")
+    CANCELLED
 }
