@@ -20,4 +20,11 @@ public class PaymentPrepayResponse {
      */
     @SerializedName("h5_url")
     public String h5Url;
+
+    /**
+     * Native 支付二维码链接。
+     * 商户可据此生成二维码供用户扫码支付。
+     */
+    @SerializedName("code_url")
+    public String codeUrl;
 }
