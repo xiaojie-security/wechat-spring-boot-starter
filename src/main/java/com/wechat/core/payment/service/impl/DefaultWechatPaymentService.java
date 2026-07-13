@@ -275,9 +275,12 @@ public class DefaultWechatPaymentService implements WechatPaymentService, Initia
                         httpResponse.headers(), respBody);
                 return WechatPayUtils.fromJson(respBody, responseClass);
             } else {
+                log.error("DefaultWechatPaymentService.executeJsonRequest 请求微信支付接口失败，uri={}, code={}, respBody={}",
+                        uri, httpResponse.code(), respBody);
                 throw new WechatPayUtils.ApiException(httpResponse.code(), respBody, httpResponse.headers());
             }
         } catch (IOException e) {
+            log.error("DefaultWechatPaymentService.executeJsonRequest 调用微信支付接口异常，uri={}", uri, e);
             throw new UncheckedIOException("Sending request to " + uri + " failed.", e);
         }
     }
@@ -298,8 +301,11 @@ public class DefaultWechatPaymentService implements WechatPaymentService, Initia
                 return;
             }
             String respBody = WechatPayUtils.extractBody(httpResponse);
+            log.error("DefaultWechatPaymentService.executeNoContentRequest 请求微信支付接口失败，uri={}, code={}, respBody={}",
+                    uri, httpResponse.code(), respBody);
             throw new WechatPayUtils.ApiException(httpResponse.code(), respBody, httpResponse.headers());
         } catch (IOException e) {
+            log.error("DefaultWechatPaymentService.executeNoContentRequest 调用微信支付接口异常，uri={}", uri, e);
             throw new UncheckedIOException("Sending request to " + uri + " failed.", e);
         }
     }

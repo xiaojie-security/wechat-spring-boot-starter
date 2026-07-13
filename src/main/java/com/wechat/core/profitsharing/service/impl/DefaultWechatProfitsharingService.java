@@ -202,8 +202,11 @@ public class DefaultWechatProfitsharingService implements WechatProfitsharingSer
                         httpResponse.headers(), respBody);
                 return WechatPayUtils.fromJson(respBody, responseClass);
             }
+            log.error("DefaultWechatProfitsharingService.executeJsonRequest 请求微信分账接口失败，uri={}, code={}, respBody={}",
+                    uri, httpResponse.code(), respBody);
             throw new WechatPayUtils.ApiException(httpResponse.code(), respBody, httpResponse.headers());
         } catch (IOException e) {
+            log.error("DefaultWechatProfitsharingService.executeJsonRequest 调用微信分账接口异常，uri={}", uri, e);
             throw new UncheckedIOException("Sending request to " + uri + " failed.", e);
         }
     }
@@ -224,8 +227,11 @@ public class DefaultWechatProfitsharingService implements WechatProfitsharingSer
                 return;
             }
             String respBody = WechatPayUtils.extractBody(httpResponse);
+            log.error("DefaultWechatProfitsharingService.executeNoContentRequest 请求微信分账接口失败，uri={}, code={}, respBody={}",
+                    uri, httpResponse.code(), respBody);
             throw new WechatPayUtils.ApiException(httpResponse.code(), respBody, httpResponse.headers());
         } catch (IOException e) {
+            log.error("DefaultWechatProfitsharingService.executeNoContentRequest 调用微信分账接口异常，uri={}", uri, e);
             throw new UncheckedIOException("Sending request to " + uri + " failed.", e);
         }
     }

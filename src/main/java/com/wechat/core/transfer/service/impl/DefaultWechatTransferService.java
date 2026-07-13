@@ -84,9 +84,12 @@ public class DefaultWechatTransferService implements WechatTransferService, Init
                 // 从HTTP应答报文构建返回数据
                 return WechatPayUtils.fromJson(respBody, TransferToUserResponse.class);
             } else {
+                log.error("DefaultWechatTransferService.transferWithAutoApproval 请求微信商家转账接口失败，path={}, code={}, respBody={}",
+                        PATH, httpResponse.code(), respBody);
                 throw new WechatPayUtils.ApiException(httpResponse.code(), respBody, httpResponse.headers());
             }
         } catch (IOException e) {
+            log.error("DefaultWechatTransferService.transferWithAutoApproval 调用微信商家转账接口异常，path={}", PATH, e);
             throw new UncheckedIOException("Sending request to " + PATH + " failed.", e);
         }
     }
@@ -126,9 +129,12 @@ public class DefaultWechatTransferService implements WechatTransferService, Init
                 // 从HTTP应答报文构建返回数据
                 return WechatPayUtils.fromJson(respBody, UserConfirmAuthorizationEntity.class);
             } else {
+                log.error("DefaultWechatTransferService.queryAuthorization 请求微信授权查询接口失败，uri={}, code={}, respBody={}",
+                        uri, httpResponse.code(), respBody);
                 throw new WechatPayUtils.ApiException(httpResponse.code(), respBody, httpResponse.headers());
             }
         } catch (IOException e) {
+            log.error("DefaultWechatTransferService.queryAuthorization 调用微信授权查询接口异常，uri={}", uri, e);
             throw new UncheckedIOException("Sending request to " + uri + " failed.", e);
         }
 
@@ -159,9 +165,12 @@ public class DefaultWechatTransferService implements WechatTransferService, Init
                         httpResponse.headers(), respBody);
                 return WechatPayUtils.fromJson(respBody, TransferBillEntity.class);
             } else {
+                log.error("DefaultWechatTransferService.queryTransferBillByOutBillNo 请求微信转账单查询接口失败，uri={}, code={}, respBody={}",
+                        uri, httpResponse.code(), respBody);
                 throw new WechatPayUtils.ApiException(httpResponse.code(), respBody, httpResponse.headers());
             }
         } catch (IOException e) {
+            log.error("DefaultWechatTransferService.queryTransferBillByOutBillNo 调用微信转账单查询接口异常，uri={}", uri, e);
             throw new UncheckedIOException("Sending request to " + uri + " failed.", e);
         }
     }
@@ -191,9 +200,12 @@ public class DefaultWechatTransferService implements WechatTransferService, Init
                         httpResponse.headers(), respBody);
                 return WechatPayUtils.fromJson(respBody, TransferBillEntity.class);
             } else {
+                log.error("DefaultWechatTransferService.queryTransferBillByTransferBillNo 请求微信转账单查询接口失败，uri={}, code={}, respBody={}",
+                        uri, httpResponse.code(), respBody);
                 throw new WechatPayUtils.ApiException(httpResponse.code(), respBody, httpResponse.headers());
             }
         } catch (IOException e) {
+            log.error("DefaultWechatTransferService.queryTransferBillByTransferBillNo 调用微信转账单查询接口异常，uri={}", uri, e);
             throw new UncheckedIOException("Sending request to " + uri + " failed.", e);
         }
     }
@@ -225,9 +237,12 @@ public class DefaultWechatTransferService implements WechatTransferService, Init
                         httpResponse.headers(), respBody);
                 return WechatPayUtils.fromJson(respBody, UserConfirmAuthorizationEntity.class);
             } else {
+                log.error("DefaultWechatTransferService.closeAuthorization 请求微信授权关闭接口失败，uri={}, code={}, respBody={}",
+                        uri, httpResponse.code(), respBody);
                 throw new WechatPayUtils.ApiException(httpResponse.code(), respBody, httpResponse.headers());
             }
         } catch (IOException e) {
+            log.error("DefaultWechatTransferService.closeAuthorization 调用微信授权关闭接口异常，uri={}", uri, e);
             throw new UncheckedIOException("Sending request to " + uri + " failed.", e);
         }
     }
