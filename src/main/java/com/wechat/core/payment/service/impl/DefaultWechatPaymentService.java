@@ -24,7 +24,6 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -34,7 +33,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
-@Service
 @RequiredArgsConstructor
 public class DefaultWechatPaymentService implements WechatPaymentService, InitializingBean {
     private final MerchantIdentityProperties merchantIdentityProperties;

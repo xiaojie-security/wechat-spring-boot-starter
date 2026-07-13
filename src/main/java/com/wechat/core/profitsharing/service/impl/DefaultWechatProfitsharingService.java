@@ -34,7 +34,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
-@Service
 @RequiredArgsConstructor
 public class DefaultWechatProfitsharingService implements WechatProfitsharingService, InitializingBean {
     private final MerchantIdentityProperties merchantIdentityProperties;

@@ -2,11 +2,14 @@ package com.wechat.properties;
 
 
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(prefix = "wechat.merchant")
 @Data
-public class MerchantIdentityProperties {
+@Slf4j
+public class MerchantIdentityProperties implements InitializingBean {
 
     /**
      * mchid(商户号)商户在商户平台申请的唯一身份标识，所有接口在调用时都必须传商户号，微信支付通过商户号确认商户身份。
@@ -57,4 +60,9 @@ public class MerchantIdentityProperties {
      * 2、在下载平台证书公钥时，需要使用该密钥进行解密。
      */
     private String apiV3Secret;
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        log.debug("MerchantIdentityProperties.afterPropertiesSet initialized");
+    }
 }
