@@ -1,9 +1,7 @@
 package com.wechat.utils;
 
-import cn.hutool.json.JSONUtil;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
+import com.google.gson.*;
+import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import java.util.List;
 
@@ -55,6 +53,34 @@ public final class WechatPayUtils {
     private static final int SIGNATURE_EXPIRE_MINUTES = 5;
     private static final int LOG_BODY_MAX_LENGTH = 1024;
 
+    private static final Gson gson = new GsonBuilder()
+            .disableHtmlEscaping()
+            .addSerializationExclusionStrategy(new ExclusionStrategy() {
+                @Override
+                public boolean shouldSkipField(FieldAttributes fieldAttributes) {
+                    final Expose expose = fieldAttributes.getAnnotation(Expose.class);
+                    return expose != null && !expose.serialize();
+                }
+
+                @Override
+                public boolean shouldSkipClass(Class<?> aClass) {
+                    return false;
+                }
+            })
+            .addDeserializationExclusionStrategy(new ExclusionStrategy() {
+                @Override
+                public boolean shouldSkipField(FieldAttributes fieldAttributes) {
+                    final Expose expose = fieldAttributes.getAnnotation(Expose.class);
+                    return expose != null && !expose.deserialize();
+                }
+
+                @Override
+                public boolean shouldSkipClass(Class<?> aClass) {
+                    return false;
+                }
+            })
+            .create();
+
     private static final char[] SYMBOLS =
             "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray();
     private static final SecureRandom random = new SecureRandom();
@@ -73,14 +99,14 @@ public final class WechatPayUtils {
      * 将 Object 转换为 JSON 字符串
      */
     public static String toJson(Object object) {
-        return JSONUtil.toJsonStr(object);
+        return gson.toJson(object);
     }
 
     /**
      * 将 JSON 字符串解析为特定类型的实例
      */
     public static <T> T fromJson(String json, Class<T> classOfT) throws JsonSyntaxException {
-        return JSONUtil.toBean(json, classOfT);
+        return gson.fromJson(json, classOfT);
     }
 
     /**
@@ -91,7 +117,7 @@ public final class WechatPayUtils {
      */
     private static String readKeyStringFromPath(String keyPath) {
         try {
-            return new String(Files.readAllBytes(Paths.get(keyPath)), StandardCharsets.UTF_8);
+            return Files.readString(Paths.get(keyPath));
         } catch (IOException e) {
             log.error("WechatPayUtils.readKeyStringFromPath 读取密钥文件失败，keyPath={}", keyPath, e);
             throw new UncheckedIOException("读取密钥文件失败，路径：" + keyPath, e);
