@@ -1,5 +1,6 @@
 package com.wechat.core.payment.domain;
 
+import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.wechat.core.payment.enums.AbnormalRefundType;
 
@@ -8,6 +9,14 @@ import com.wechat.core.payment.enums.AbnormalRefundType;
  * 当原路退款失败时，可通过该对象补充退回银行卡所需信息。
  */
 public class AbnormalRefundRequest {
+    /**
+     * 微信退款单号。
+     * 用于路径参数定位待发起异常退款的退款记录。
+     */
+    @SerializedName("refund_id")
+    @Expose(serialize = false)
+    public String refundId;
+
     /**
      * 商户退款单号。
      * 用于标识本次异常退款业务单。

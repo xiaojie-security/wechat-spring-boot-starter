@@ -43,32 +43,17 @@ public class DefaultWechatTransferService implements WechatTransferService, Init
 
 
     @Override
-    public TransferToUserResponse transferWithAutoApproval(String outBillNo,
-                                                           String transferSceneId,
-                                                           String openid,
-                                                           String userName,
-                                                           Long transferAmount,
-                                                           String transferRemark,
-                                                           UserConfirmAuthorizationInfo authorizationInfo
-    ) {
+    public TransferToUserResponse transferWithAutoApproval(TransferToUserRequest request) {
         String HOST = "https://api.mch.weixin.qq.com";
         String METHOD = "POST";
         String PATH = "/v3/fund-app/mch-transfer/transfer-bills/pre-transfer-with-authorization";
 
-
-        TransferToUserRequest request = new TransferToUserRequest();
-
-        request.appid = appid;
-        request.outBillNo = outBillNo;
-        request.transferSceneId = transferSceneId;
-        request.openid = openid;
-        request.userName = WechatPayUtils.encrypt(
-                wechatPayPublicKey,
-                userName
-        );
-        request.transferAmount = transferAmount;
-        request.transferRemark = transferRemark;
-        request.authorizationInfo = authorizationInfo;
+        if (request.appid == null || request.appid.isEmpty()) {
+            request.appid = appid;
+        }
+        if (request.userName != null && !request.userName.isEmpty()) {
+            request.userName = WechatPayUtils.encrypt(wechatPayPublicKey, request.userName);
+        }
 
         String reqBody = WechatPayUtils.toJson(request);
         Request.Builder reqBuilder = new Request.Builder().url(HOST + PATH);
@@ -107,16 +92,11 @@ public class DefaultWechatTransferService implements WechatTransferService, Init
     }
 
     @Override
-    public UserConfirmAuthorizationEntity queryAuthorization(String outAuthorizationNo, boolean  isDisplayAuthorization) {
+    public UserConfirmAuthorizationEntity queryAuthorization(GetRequest request) {
 
         String HOST = "https://api.mch.weixin.qq.com";
         String METHOD = "GET";
         String PATH = "/v3/fund-app/mch-transfer/user-confirm-authorization/out-authorization-no/{out_authorization_no}";
-
-        GetRequest request = new GetRequest();
-        request.outAuthorizationNo = outAuthorizationNo;
-        request.isDisplayAuthorization = isDisplayAuthorization;
-
 
         String uri = PATH;
         uri = uri.replace("{out_authorization_no}", WechatPayUtils.urlEncode(request.outAuthorizationNo));
@@ -155,13 +135,10 @@ public class DefaultWechatTransferService implements WechatTransferService, Init
     }
 
     @Override
-    public TransferBillEntity queryTransferBillByOutBillNo(String outBillNo) {
+    public TransferBillEntity queryTransferBillByOutBillNo(GetTransferBillByOutNoRequest request) {
         String HOST = "https://api.mch.weixin.qq.com";
         String METHOD = "GET";
         String PATH = "/v3/fund-app/mch-transfer/transfer-bills/out-bill-no/{out_bill_no}";
-
-        GetTransferBillByOutNoRequest request = new GetTransferBillByOutNoRequest();
-        request.outBillNo = outBillNo;
 
         String uri = PATH;
         uri = uri.replace("{out_bill_no}", WechatPayUtils.urlEncode(request.outBillNo));
@@ -190,13 +167,10 @@ public class DefaultWechatTransferService implements WechatTransferService, Init
     }
 
     @Override
-    public TransferBillEntity queryTransferBillByTransferBillNo(String transferBillNo) {
+    public TransferBillEntity queryTransferBillByTransferBillNo(GetTransferBillByNoRequest request) {
         String HOST = "https://api.mch.weixin.qq.com";
         String METHOD = "GET";
         String PATH = "/v3/fund-app/mch-transfer/transfer-bills/transfer-bill-no/{transfer_bill_no}";
-
-        GetTransferBillByNoRequest request = new GetTransferBillByNoRequest();
-        request.transferBillNo = transferBillNo;
 
         String uri = PATH;
         uri = uri.replace("{transfer_bill_no}", WechatPayUtils.urlEncode(request.transferBillNo));
@@ -225,13 +199,10 @@ public class DefaultWechatTransferService implements WechatTransferService, Init
     }
 
     @Override
-    public UserConfirmAuthorizationEntity closeAuthorization(String outAuthorizationNo) {
+    public UserConfirmAuthorizationEntity closeAuthorization(CloseAuthorizationRequest request) {
         String HOST = "https://api.mch.weixin.qq.com";
         String METHOD = "POST";
         String PATH = "/v3/fund-app/mch-transfer/user-confirm-authorization/out-authorization-no/{out_authorization_no}/close";
-
-        GetRequest request = new GetRequest();
-        request.outAuthorizationNo = outAuthorizationNo;
 
         String uri = PATH;
         uri = uri.replace("{out_authorization_no}", WechatPayUtils.urlEncode(request.outAuthorizationNo));

@@ -7,6 +7,9 @@ import com.wechat.core.payment.domain.PaymentCloseOrderRequest;
 import com.wechat.core.payment.domain.PaymentOrderEntity;
 import com.wechat.core.payment.domain.PaymentPrepayRequest;
 import com.wechat.core.payment.domain.PaymentPrepayResponse;
+import com.wechat.core.payment.domain.QueryOrderByOutTradeNoRequest;
+import com.wechat.core.payment.domain.QueryOrderByTransactionIdRequest;
+import com.wechat.core.payment.domain.QueryRefundByOutRefundNoRequest;
 import com.wechat.core.payment.domain.RefundEntity;
 import com.wechat.core.payment.domain.RefundRequest;
 import com.wechat.core.payment.domain.TradeBillRequest;
@@ -60,8 +63,12 @@ public class DefaultWechatPaymentService implements WechatPaymentService, Initia
         String METHOD = "POST";
         String PATH = "/v3/pay/transactions/jsapi";
 
-        request.appid = appid;
-        request.mchid = mchid;
+        if (isBlank(request.appid)) {
+            request.appid = appid;
+        }
+        if (isBlank(request.mchid)) {
+            request.mchid = mchid;
+        }
 
         String reqBody = WechatPayUtils.toJson(request);
         return executeJsonRequest(HOST, METHOD, PATH, reqBody, PaymentPrepayResponse.class);
@@ -73,22 +80,30 @@ public class DefaultWechatPaymentService implements WechatPaymentService, Initia
         String METHOD = "POST";
         String PATH = "/v3/pay/transactions/app";
 
-        request.appid = appid;
-        request.mchid = mchid;
+        if (isBlank(request.appid)) {
+            request.appid = appid;
+        }
+        if (isBlank(request.mchid)) {
+            request.mchid = mchid;
+        }
 
         String reqBody = WechatPayUtils.toJson(request);
         return executeJsonRequest(HOST, METHOD, PATH, reqBody, PaymentPrepayResponse.class);
     }
 
     @Override
-    public PaymentOrderEntity queryOrderByTransactionId(String transactionId) {
+    public PaymentOrderEntity queryOrderByTransactionId(QueryOrderByTransactionIdRequest request) {
         String HOST = "https://api.mch.weixin.qq.com";
         String METHOD = "GET";
         String PATH = "/v3/pay/transactions/id/{transaction_id}";
 
-        String uri = PATH.replace("{transaction_id}", WechatPayUtils.urlEncode(transactionId));
+        if (isBlank(request.mchid)) {
+            request.mchid = mchid;
+        }
+
+        String uri = PATH.replace("{transaction_id}", WechatPayUtils.urlEncode(request.transactionId));
         Map<String, Object> args = new HashMap<>();
-        args.put("mchid", mchid);
+        args.put("mchid", request.mchid);
         String queryString = WechatPayUtils.urlEncode(args);
         if (!queryString.isEmpty()) {
             uri = uri + "?" + queryString;
@@ -97,14 +112,18 @@ public class DefaultWechatPaymentService implements WechatPaymentService, Initia
     }
 
     @Override
-    public PaymentOrderEntity queryOrderByOutTradeNo(String outTradeNo) {
+    public PaymentOrderEntity queryOrderByOutTradeNo(QueryOrderByOutTradeNoRequest request) {
         String HOST = "https://api.mch.weixin.qq.com";
         String METHOD = "GET";
         String PATH = "/v3/pay/transactions/out-trade-no/{out_trade_no}";
 
-        String uri = PATH.replace("{out_trade_no}", WechatPayUtils.urlEncode(outTradeNo));
+        if (isBlank(request.mchid)) {
+            request.mchid = mchid;
+        }
+
+        String uri = PATH.replace("{out_trade_no}", WechatPayUtils.urlEncode(request.outTradeNo));
         Map<String, Object> args = new HashMap<>();
-        args.put("mchid", mchid);
+        args.put("mchid", request.mchid);
         String queryString = WechatPayUtils.urlEncode(args);
         if (!queryString.isEmpty()) {
             uri = uri + "?" + queryString;
@@ -113,15 +132,16 @@ public class DefaultWechatPaymentService implements WechatPaymentService, Initia
     }
 
     @Override
-    public void closeOrder(String outTradeNo) {
+    public void closeOrder(PaymentCloseOrderRequest request) {
         String HOST = "https://api.mch.weixin.qq.com";
         String METHOD = "POST";
         String PATH = "/v3/pay/transactions/out-trade-no/{out_trade_no}/close";
 
-        PaymentCloseOrderRequest request = new PaymentCloseOrderRequest();
-        request.mchid = mchid;
+        if (isBlank(request.mchid)) {
+            request.mchid = mchid;
+        }
 
-        String uri = PATH.replace("{out_trade_no}", WechatPayUtils.urlEncode(outTradeNo));
+        String uri = PATH.replace("{out_trade_no}", WechatPayUtils.urlEncode(request.outTradeNo));
         String reqBody = WechatPayUtils.toJson(request);
         executeNoContentRequest(HOST, METHOD, uri, reqBody);
     }
@@ -137,22 +157,22 @@ public class DefaultWechatPaymentService implements WechatPaymentService, Initia
     }
 
     @Override
-    public RefundEntity queryRefundByOutRefundNo(String outRefundNo) {
+    public RefundEntity queryRefundByOutRefundNo(QueryRefundByOutRefundNoRequest request) {
         String HOST = "https://api.mch.weixin.qq.com";
         String METHOD = "GET";
         String PATH = "/v3/refund/domestic/refunds/{out_refund_no}";
 
-        String uri = PATH.replace("{out_refund_no}", WechatPayUtils.urlEncode(outRefundNo));
+        String uri = PATH.replace("{out_refund_no}", WechatPayUtils.urlEncode(request.outRefundNo));
         return executeJsonRequest(HOST, METHOD, uri, null, RefundEntity.class);
     }
 
     @Override
-    public RefundEntity createAbnormalRefund(String refundId, AbnormalRefundRequest request) {
+    public RefundEntity createAbnormalRefund(AbnormalRefundRequest request) {
         String HOST = "https://api.mch.weixin.qq.com";
         String METHOD = "POST";
         String PATH = "/v3/refund/domestic/refunds/{refund_id}/apply-abnormal-refund";
 
-        String uri = PATH.replace("{refund_id}", WechatPayUtils.urlEncode(refundId));
+        String uri = PATH.replace("{refund_id}", WechatPayUtils.urlEncode(request.refundId));
         if (request.bankAccount != null && !request.bankAccount.isEmpty()) {
             request.bankAccount = WechatPayUtils.encrypt(wechatPayPublicKey, request.bankAccount);
         }
@@ -248,5 +268,9 @@ public class DefaultWechatPaymentService implements WechatPaymentService, Initia
         } catch (IOException e) {
             throw new UncheckedIOException("Sending request to " + uri + " failed.", e);
         }
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.isEmpty();
     }
 }
