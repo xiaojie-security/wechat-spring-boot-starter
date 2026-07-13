@@ -1,1 +1,4 @@
+com.wechat.config.WechatConfiguration
 com.wechat.config.WechatPaymentConfiguration
+com.wechat.config.WechatProfitsharingConfiguration
+com.wechat.config.WechatTransferConfiguration
