@@ -212,6 +212,13 @@ public class PaymentPrepayRequest {
          */
         @SerializedName("store_info")
         public StoreInfo storeInfo;
+
+        /**
+         * H5 支付场景信息。
+         * H5 下单时可用于标识唤起支付的网页环境。
+         */
+        @SerializedName("h5_info")
+        public H5Info h5Info;
     }
 
     /**
@@ -252,5 +259,41 @@ public class PaymentPrepayRequest {
          */
         @SerializedName("profit_sharing")
         public Boolean profitSharing;
+    }
+
+    /**
+     * H5 支付场景信息。
+     */
+    public static class H5Info {
+        /**
+         * 场景类型。
+         * 常见值如 Wap、iOS、Android。
+         */
+        @SerializedName("type")
+        public String type;
+
+        /**
+         * 应用名称。
+         */
+        @SerializedName("app_name")
+        public String appName;
+
+        /**
+         * 网站 URL。
+         */
+        @SerializedName("app_url")
+        public String appUrl;
+
+        /**
+         * iOS 应用包名标识。
+         */
+        @SerializedName("bundle_id")
+        public String bundleId;
+
+        /**
+         * Android 应用包名标识。
+         */
+        @SerializedName("package_name")
+        public String packageName;
     }
 }

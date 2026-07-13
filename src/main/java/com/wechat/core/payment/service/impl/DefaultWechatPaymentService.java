@@ -92,6 +92,23 @@ public class DefaultWechatPaymentService implements WechatPaymentService, Initia
     }
 
     @Override
+    public PaymentPrepayResponse h5Prepay(PaymentPrepayRequest request) {
+        String HOST = "https://api.mch.weixin.qq.com";
+        String METHOD = "POST";
+        String PATH = "/v3/pay/transactions/h5";
+
+        if (isBlank(request.appid)) {
+            request.appid = appid;
+        }
+        if (isBlank(request.mchid)) {
+            request.mchid = mchid;
+        }
+
+        String reqBody = WechatPayUtils.toJson(request);
+        return executeJsonRequest(HOST, METHOD, PATH, reqBody, PaymentPrepayResponse.class);
+    }
+
+    @Override
     public PaymentOrderEntity queryOrderByTransactionId(QueryOrderByTransactionIdRequest request) {
         String HOST = "https://api.mch.weixin.qq.com";
         String METHOD = "GET";

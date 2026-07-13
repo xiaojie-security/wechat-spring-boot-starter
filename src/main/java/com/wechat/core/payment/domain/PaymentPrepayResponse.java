@@ -13,4 +13,11 @@ public class PaymentPrepayResponse {
      */
     @SerializedName("prepay_id")
     public String prepayId;
+
+    /**
+     * H5 支付跳转链接。
+     * 浏览器访问该地址后可进入微信支付收银台。
+     */
+    @SerializedName("h5_url")
+    public String h5Url;
 }

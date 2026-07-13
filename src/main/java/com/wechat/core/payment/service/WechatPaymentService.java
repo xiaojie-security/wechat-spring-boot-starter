@@ -42,6 +42,17 @@ public interface WechatPaymentService {
     PaymentPrepayResponse appPrepay(PaymentPrepayRequest request);
 
     /**
+     * H5 支付下单。
+     *
+     * @param request 下单请求参数，需包含商品描述、商户订单号、金额以及 H5 场景信息。
+     *                其中 {@code appid}、{@code mchid} 支持自动注入：
+     *                如果请求对象自身已传值，则优先使用请求值；
+     *                如果未传，则自动使用服务中已初始化的商户应用 AppID 和商户号。
+     * @return 下单响应，主要包含 h5Url，前端浏览器可据此跳转至微信支付收银台
+     */
+    PaymentPrepayResponse h5Prepay(PaymentPrepayRequest request);
+
+    /**
      * 通过微信支付订单号查询订单。
      *
      * @param request 查询请求参数。
