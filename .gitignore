@@ -26,6 +26,10 @@ replay_pid*
 # Maven 构建目录
 target/
 
+# 允许提交仓库内的本地 Maven 仓库产物
+!maven-repository/
+!maven-repository/**
+
 # IntelliJ IDEA 工程目录
 .idea/
 !.idea/.gitignore

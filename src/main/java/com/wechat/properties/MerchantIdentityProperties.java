@@ -1,6 +1,7 @@
 package com.wechat.properties;
 
 
+import com.wechat.utils.ConfigStringLoader;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
@@ -69,5 +70,7 @@ public class MerchantIdentityProperties implements InitializingBean {
     @Override
     public void afterPropertiesSet() throws Exception {
         log.debug("MerchantIdentityProperties.afterPropertiesSet initialized");
+        this.publicKey = ConfigStringLoader.load(this.publicKey, "微信支付公钥");
+        this.certificate = ConfigStringLoader.load(this.certificate, "商户API证书私钥");
     }
 }

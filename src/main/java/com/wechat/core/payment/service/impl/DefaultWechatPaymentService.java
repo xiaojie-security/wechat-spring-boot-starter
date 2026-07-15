@@ -48,7 +48,7 @@ public class DefaultWechatPaymentService implements WechatPaymentService, Initia
     @Override
     public void afterPropertiesSet() throws Exception {
         wechatPayPublicKey = WechatPayUtils.loadPublicKeyFromString(merchantIdentityProperties.getPublicKey());
-        privateKey = WechatPayUtils.loadPrivateKeyFromPath(merchantIdentityProperties.getCertificate());
+        privateKey = WechatPayUtils.loadPrivateKeyFromString(merchantIdentityProperties.getCertificate());
         wechatPayPublicKeyId = merchantIdentityProperties.getPublicKeyId();
         certificateSerialNo = merchantIdentityProperties.getSerialNo();
         mchid = merchantIdentityProperties.getMerchantId();
