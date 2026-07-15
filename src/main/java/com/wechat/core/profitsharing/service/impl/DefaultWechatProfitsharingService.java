@@ -15,6 +15,7 @@ import com.wechat.core.profitsharing.domain.QueryProfitsharingReturnOrderRequest
 import com.wechat.core.profitsharing.domain.UnfreezeProfitsharingOrderRequest;
 import com.wechat.core.profitsharing.service.WechatProfitsharingService;
 import com.wechat.properties.MerchantIdentityProperties;
+import com.wechat.utils.ConfigStringLoader;
 import com.wechat.utils.WechatPayUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -48,8 +49,10 @@ public class DefaultWechatProfitsharingService implements WechatProfitsharingSer
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        wechatPayPublicKey = WechatPayUtils.loadPublicKeyFromString(merchantIdentityProperties.getPublicKey());
-        privateKey = WechatPayUtils.loadPrivateKeyFromPath(merchantIdentityProperties.getCertificate());
+        wechatPayPublicKey = WechatPayUtils.loadPublicKeyFromString(
+                ConfigStringLoader.load(merchantIdentityProperties.getPublicKey(), "微信支付公钥"));
+        privateKey = WechatPayUtils.loadPrivateKeyFromString(
+                ConfigStringLoader.load(merchantIdentityProperties.getCertificate(), "商户API证书私钥"));
         wechatPayPublicKeyId = merchantIdentityProperties.getPublicKeyId();
         certificateSerialNo = merchantIdentityProperties.getSerialNo();
         mchid = merchantIdentityProperties.getMerchantId();
