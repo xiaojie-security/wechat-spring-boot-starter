@@ -69,7 +69,7 @@ public class MerchantIdentityProperties implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        log.debug("MerchantIdentityProperties.afterPropertiesSet initialized");
+        log.debug("MerchantIdentityProperties.afterPropertiesSet 加载成功");
         this.publicKey = ConfigStringLoader.load(this.publicKey, "微信支付公钥");
         this.certificate = ConfigStringLoader.load(this.certificate, "商户API证书私钥");
     }
