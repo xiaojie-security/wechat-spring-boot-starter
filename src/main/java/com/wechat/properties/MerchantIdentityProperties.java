@@ -22,6 +22,11 @@ public class MerchantIdentityProperties implements InitializingBean {
     private String appid;
 
     /**
+     * 应用密钥 AppSecret，在微信开放平台提交应用审核通过后获得
+     */
+    private String appSecret;
+
+    /**
      * 商户发起APIv3接口请求时，需要使用商户API证书私钥对请求进行签名。
      */
     private String certificate;
