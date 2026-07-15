@@ -5,7 +5,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import com.wechat.core.oauth2.WechatOAuth2Service;
 import com.wechat.core.oauth2.domain.*;
-import com.wechat.properties.MerchantIdentityProperties;
+import com.wechat.provider.WechatMerchantConfigProvider;
+import com.wechat.provider.domain.WechatMerchantConfig;
 import com.wechat.utils.WechatPayUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,14 +27,15 @@ public class DefaultWechatOAuth2Service implements WechatOAuth2Service {
     private static final String AUTH_VALIDATE_URL = "https://api.weixin.qq.com/sns/auth";
     private static final String USER_INFO_URL = "https://api.weixin.qq.com/sns/userinfo";
 
-    private final MerchantIdentityProperties merchantIdentityProperties;
     private final OkHttpClient client = new OkHttpClient.Builder().build();
+    private final WechatMerchantConfigProvider provider;
 
 
     @Override
     public String generateAuthUrl(AuthorizationRequest request) {
         requireNonNull(request, "AuthorizationRequest");
-        String appid = defaultIfBlank(request.getAppid(), merchantIdentityProperties.getAppid());
+        WechatMerchantConfig config = getMerchantConfig();
+        String appid = defaultIfBlank(request.getAppid(), config.getAppid());
         String responseType = defaultIfBlank(request.getResponseType(), "code");
         String scope = defaultIfBlank(request.getScope(), "snsapi_login");
         String lang = defaultIfBlank(request.getLang(), "cn");
@@ -56,8 +58,9 @@ public class DefaultWechatOAuth2Service implements WechatOAuth2Service {
     @Override
     public AccessTokenResponse getAccessTokenByCode(AccessTokenRequest request) {
         requireNonNull(request, "AccessTokenRequest");
-        String appid = defaultIfBlank(request.getAppid(), merchantIdentityProperties.getAppid());
-        String secret = defaultIfBlank(request.getSecret(), merchantIdentityProperties.getAppSecret());
+        WechatMerchantConfig config = getMerchantConfig();
+        String appid = defaultIfBlank(request.getAppid(), config.getAppid());
+        String secret = defaultIfBlank(request.getSecret(), config.getAppSecret());
         String grantType = defaultIfBlank(request.getGrantType(), "authorization_code");
         requireNotBlank(appid, "appid");
         requireNotBlank(secret, "secret");
@@ -105,7 +108,8 @@ public class DefaultWechatOAuth2Service implements WechatOAuth2Service {
     @Override
     public RefreshTokenResponse refreshAccessToken(RefreshTokenRequest request) {
         requireNonNull(request, "RefreshTokenRequest");
-        String appid = defaultIfBlank(request.getAppid(), merchantIdentityProperties.getAppid());
+        WechatMerchantConfig config = getMerchantConfig();
+        String appid = defaultIfBlank(request.getAppid(), config.getAppid());
         String grantType = defaultIfBlank(request.getGrantType(), "refresh_token");
         requireNotBlank(appid, "appid");
         requireNotBlank(request.getRefreshToken(), "refreshToken");
@@ -202,6 +206,14 @@ public class DefaultWechatOAuth2Service implements WechatOAuth2Service {
 
     private String defaultIfBlank(String value, String defaultValue) {
         return isBlank(value) ? defaultValue : value;
+    }
+
+    private WechatMerchantConfig getMerchantConfig() {
+        WechatMerchantConfig config = provider.getConfig();
+        if (config == null) {
+            throw new WechatOAuth2Exception("未获取到微信商户配置");
+        }
+        return config;
     }
 
     private void requireNonNull(Object value, String fieldName) {

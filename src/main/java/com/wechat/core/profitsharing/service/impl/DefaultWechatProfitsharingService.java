@@ -14,7 +14,8 @@ import com.wechat.core.profitsharing.domain.QueryProfitsharingOrderRequest;
 import com.wechat.core.profitsharing.domain.QueryProfitsharingReturnOrderRequest;
 import com.wechat.core.profitsharing.domain.UnfreezeProfitsharingOrderRequest;
 import com.wechat.core.profitsharing.service.WechatProfitsharingService;
-import com.wechat.properties.MerchantIdentityProperties;
+import com.wechat.provider.WechatMerchantConfigProvider;
+import com.wechat.provider.domain.WechatMerchantConfig;
 import com.wechat.utils.WechatPayUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,8 +24,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -35,40 +34,24 @@ import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
-public class DefaultWechatProfitsharingService implements WechatProfitsharingService, InitializingBean {
-    private final MerchantIdentityProperties merchantIdentityProperties;
-
-    private String mchid;
-    private String appid;
-    private String certificateSerialNo;
-    private PrivateKey privateKey;
-    private String wechatPayPublicKeyId;
-    private PublicKey wechatPayPublicKey;
+public class DefaultWechatProfitsharingService implements WechatProfitsharingService {
+    private final WechatMerchantConfigProvider provider;
     private final OkHttpClient client = new OkHttpClient.Builder().build();
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        wechatPayPublicKey = WechatPayUtils.loadPublicKeyFromString(merchantIdentityProperties.getPublicKey());
-        privateKey = WechatPayUtils.loadPrivateKeyFromString(merchantIdentityProperties.getCertificate());
-        wechatPayPublicKeyId = merchantIdentityProperties.getPublicKeyId();
-        certificateSerialNo = merchantIdentityProperties.getSerialNo();
-        mchid = merchantIdentityProperties.getMerchantId();
-        appid = merchantIdentityProperties.getAppid();
-    }
 
     @Override
     public ProfitsharingOrderEntity createOrder(ProfitsharingOrderRequest request) {
         String host = "https://api.mch.weixin.qq.com";
         String method = "POST";
         String path = "/v3/profitsharing/orders";
+        MerchantRuntime runtime = getMerchantRuntime();
 
         if (isBlank(request.appid)) {
-            request.appid = appid;
+            request.appid = runtime.appid;
         }
-        encryptReceiverNames(request);
+        encryptReceiverNames(runtime, request);
 
         String reqBody = WechatPayUtils.toJson(request);
-        return executeJsonRequest(host, method, path, reqBody, ProfitsharingOrderEntity.class);
+        return executeJsonRequest(runtime, host, method, path, reqBody, ProfitsharingOrderEntity.class);
     }
 
     @Override
@@ -76,6 +59,7 @@ public class DefaultWechatProfitsharingService implements WechatProfitsharingSer
         String host = "https://api.mch.weixin.qq.com";
         String method = "GET";
         String path = "/v3/profitsharing/orders/{out_order_no}";
+        MerchantRuntime runtime = getMerchantRuntime();
 
         String uri = path.replace("{out_order_no}", WechatPayUtils.urlEncode(request.outOrderNo));
         Map<String, Object> args = new HashMap<>();
@@ -84,7 +68,7 @@ public class DefaultWechatProfitsharingService implements WechatProfitsharingSer
         if (!queryString.isEmpty()) {
             uri = uri + "?" + queryString;
         }
-        return executeJsonRequest(host, method, uri, null, ProfitsharingOrderEntity.class);
+        return executeJsonRequest(runtime, host, method, uri, null, ProfitsharingOrderEntity.class);
     }
 
     @Override
@@ -92,13 +76,14 @@ public class DefaultWechatProfitsharingService implements WechatProfitsharingSer
         String host = "https://api.mch.weixin.qq.com";
         String method = "POST";
         String path = "/v3/profitsharing/return-orders";
+        MerchantRuntime runtime = getMerchantRuntime();
 
         if (isBlank(request.returnMchid)) {
-            request.returnMchid = mchid;
+            request.returnMchid = runtime.mchid;
         }
 
         String reqBody = WechatPayUtils.toJson(request);
-        return executeJsonRequest(host, method, path, reqBody, ProfitsharingReturnOrderEntity.class);
+        return executeJsonRequest(runtime, host, method, path, reqBody, ProfitsharingReturnOrderEntity.class);
     }
 
     @Override
@@ -106,9 +91,10 @@ public class DefaultWechatProfitsharingService implements WechatProfitsharingSer
         String host = "https://api.mch.weixin.qq.com";
         String method = "GET";
         String path = "/v3/profitsharing/return-orders/{out_return_no}";
+        MerchantRuntime runtime = getMerchantRuntime();
 
         String uri = path.replace("{out_return_no}", WechatPayUtils.urlEncode(request.outReturnNo));
-        return executeJsonRequest(host, method, uri, null, ProfitsharingReturnOrderEntity.class);
+        return executeJsonRequest(runtime, host, method, uri, null, ProfitsharingReturnOrderEntity.class);
     }
 
     @Override
@@ -116,9 +102,10 @@ public class DefaultWechatProfitsharingService implements WechatProfitsharingSer
         String host = "https://api.mch.weixin.qq.com";
         String method = "POST";
         String path = "/v3/profitsharing/orders/unfreeze";
+        MerchantRuntime runtime = getMerchantRuntime();
 
         String reqBody = WechatPayUtils.toJson(request);
-        return executeJsonRequest(host, method, path, reqBody, ProfitsharingOrderEntity.class);
+        return executeJsonRequest(runtime, host, method, path, reqBody, ProfitsharingOrderEntity.class);
     }
 
     @Override
@@ -126,9 +113,10 @@ public class DefaultWechatProfitsharingService implements WechatProfitsharingSer
         String host = "https://api.mch.weixin.qq.com";
         String method = "GET";
         String path = "/v3/profitsharing/transactions/{transaction_id}/amounts";
+        MerchantRuntime runtime = getMerchantRuntime();
 
         String uri = path.replace("{transaction_id}", WechatPayUtils.urlEncode(request.transactionId));
-        return executeJsonRequest(host, method, uri, null, ProfitsharingAmountEntity.class);
+        return executeJsonRequest(runtime, host, method, uri, null, ProfitsharingAmountEntity.class);
     }
 
     @Override
@@ -136,16 +124,17 @@ public class DefaultWechatProfitsharingService implements WechatProfitsharingSer
         String host = "https://api.mch.weixin.qq.com";
         String method = "POST";
         String path = "/v3/profitsharing/receivers/add";
+        MerchantRuntime runtime = getMerchantRuntime();
 
         if (isBlank(request.appid)) {
-            request.appid = appid;
+            request.appid = runtime.appid;
         }
         if (!isBlank(request.name)) {
-            request.name = WechatPayUtils.encrypt(wechatPayPublicKey, request.name);
+            request.name = WechatPayUtils.encrypt(runtime.wechatPayPublicKey, request.name);
         }
 
         String reqBody = WechatPayUtils.toJson(request);
-        executeNoContentRequest(host, method, path, reqBody);
+        executeNoContentRequest(runtime, host, method, path, reqBody);
     }
 
     @Override
@@ -153,13 +142,14 @@ public class DefaultWechatProfitsharingService implements WechatProfitsharingSer
         String host = "https://api.mch.weixin.qq.com";
         String method = "POST";
         String path = "/v3/profitsharing/receivers/delete";
+        MerchantRuntime runtime = getMerchantRuntime();
 
         if (isBlank(request.appid)) {
-            request.appid = appid;
+            request.appid = runtime.appid;
         }
 
         String reqBody = WechatPayUtils.toJson(request);
-        executeNoContentRequest(host, method, path, reqBody);
+        executeNoContentRequest(runtime, host, method, path, reqBody);
     }
 
     @Override
@@ -167,6 +157,7 @@ public class DefaultWechatProfitsharingService implements WechatProfitsharingSer
         String host = "https://api.mch.weixin.qq.com";
         String method = "GET";
         String path = "/v3/profitsharing/bills";
+        MerchantRuntime runtime = getMerchantRuntime();
 
         String uri = path;
         Map<String, Object> args = new HashMap<>();
@@ -176,15 +167,17 @@ public class DefaultWechatProfitsharingService implements WechatProfitsharingSer
         if (!queryString.isEmpty()) {
             uri = uri + "?" + queryString;
         }
-        return executeJsonRequest(host, method, uri, null, ProfitsharingBillDownloadEntity.class);
+        return executeJsonRequest(runtime, host, method, uri, null, ProfitsharingBillDownloadEntity.class);
     }
 
-    private <T> T executeJsonRequest(String host, String method, String uri, String reqBody, Class<T> responseClass) {
+    private <T> T executeJsonRequest(MerchantRuntime runtime, String host, String method, String uri,
+                                     String reqBody, Class<T> responseClass) {
         Request.Builder reqBuilder = new Request.Builder().url(host + uri);
         reqBuilder.addHeader("Accept", "application/json");
-        reqBuilder.addHeader("Wechatpay-Serial", wechatPayPublicKeyId);
+        reqBuilder.addHeader("Wechatpay-Serial", runtime.wechatPayPublicKeyId);
         reqBuilder.addHeader("Authorization",
-                WechatPayUtils.buildAuthorization(mchid, certificateSerialNo, privateKey, method, uri, reqBody));
+                WechatPayUtils.buildAuthorization(runtime.mchid, runtime.certificateSerialNo,
+                        runtime.privateKey, method, uri, reqBody));
         if (reqBody != null) {
             reqBuilder.addHeader("Content-Type", "application/json");
             RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), reqBody);
@@ -197,7 +190,7 @@ public class DefaultWechatProfitsharingService implements WechatProfitsharingSer
         try (Response httpResponse = client.newCall(httpRequest).execute()) {
             String respBody = WechatPayUtils.extractBody(httpResponse);
             if (httpResponse.code() >= 200 && httpResponse.code() < 300) {
-                WechatPayUtils.validateResponse(this.wechatPayPublicKeyId, this.wechatPayPublicKey,
+                WechatPayUtils.validateResponse(runtime.wechatPayPublicKeyId, runtime.wechatPayPublicKey,
                         httpResponse.headers(), respBody);
                 return WechatPayUtils.fromJson(respBody, responseClass);
             }
@@ -210,12 +203,14 @@ public class DefaultWechatProfitsharingService implements WechatProfitsharingSer
         }
     }
 
-    private void executeNoContentRequest(String host, String method, String uri, String reqBody) {
+    private void executeNoContentRequest(MerchantRuntime runtime, String host, String method, String uri,
+                                         String reqBody) {
         Request.Builder reqBuilder = new Request.Builder().url(host + uri);
         reqBuilder.addHeader("Accept", "application/json");
-        reqBuilder.addHeader("Wechatpay-Serial", wechatPayPublicKeyId);
+        reqBuilder.addHeader("Wechatpay-Serial", runtime.wechatPayPublicKeyId);
         reqBuilder.addHeader("Authorization",
-                WechatPayUtils.buildAuthorization(mchid, certificateSerialNo, privateKey, method, uri, reqBody));
+                WechatPayUtils.buildAuthorization(runtime.mchid, runtime.certificateSerialNo,
+                        runtime.privateKey, method, uri, reqBody));
         reqBuilder.addHeader("Content-Type", "application/json");
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), reqBody);
         reqBuilder.method(method, requestBody);
@@ -235,18 +230,52 @@ public class DefaultWechatProfitsharingService implements WechatProfitsharingSer
         }
     }
 
-    private void encryptReceiverNames(ProfitsharingOrderRequest request) {
+    private void encryptReceiverNames(MerchantRuntime runtime, ProfitsharingOrderRequest request) {
         if (request.receivers == null || request.receivers.isEmpty()) {
             return;
         }
         for (ProfitsharingOrderRequest.Receiver receiver : request.receivers) {
             if (!isBlank(receiver.name)) {
-                receiver.name = WechatPayUtils.encrypt(wechatPayPublicKey, receiver.name);
+                receiver.name = WechatPayUtils.encrypt(runtime.wechatPayPublicKey, receiver.name);
             }
         }
     }
 
+    private MerchantRuntime getMerchantRuntime() {
+        WechatMerchantConfig config = provider.getConfig();
+        if (config == null) {
+            throw new IllegalStateException("未获取到微信商户配置");
+        }
+        return new MerchantRuntime(
+                config.getMerchantId(),
+                config.getAppid(),
+                config.getSerialNo(),
+                config.getPublicKeyId(),
+                WechatPayUtils.loadPrivateKeyFromString(config.getCertificate()),
+                WechatPayUtils.loadPublicKeyFromString(config.getPublicKey())
+        );
+    }
+
     private boolean isBlank(String value) {
         return value == null || value.isEmpty();
+    }
+
+    private static final class MerchantRuntime {
+        private final String mchid;
+        private final String appid;
+        private final String certificateSerialNo;
+        private final String wechatPayPublicKeyId;
+        private final PrivateKey privateKey;
+        private final PublicKey wechatPayPublicKey;
+
+        private MerchantRuntime(String mchid, String appid, String certificateSerialNo, String wechatPayPublicKeyId,
+                                PrivateKey privateKey, PublicKey wechatPayPublicKey) {
+            this.mchid = mchid;
+            this.appid = appid;
+            this.certificateSerialNo = certificateSerialNo;
+            this.wechatPayPublicKeyId = wechatPayPublicKeyId;
+            this.privateKey = privateKey;
+            this.wechatPayPublicKey = wechatPayPublicKey;
+        }
     }
 }

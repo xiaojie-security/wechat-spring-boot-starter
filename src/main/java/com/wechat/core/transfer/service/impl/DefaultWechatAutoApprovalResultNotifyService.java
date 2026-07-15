@@ -3,7 +3,8 @@ package com.wechat.core.transfer.service.impl;
 import com.google.gson.annotations.SerializedName;
 import com.wechat.core.transfer.domain.AutoApprovalResultNotifyEntity;
 import com.wechat.core.transfer.service.WechatAutoApprovalResultNotifyService;
-import com.wechat.properties.MerchantIdentityProperties;
+import com.wechat.provider.WechatMerchantConfigProvider;
+import com.wechat.provider.domain.WechatMerchantConfig;
 import com.wechat.utils.AesUtil;
 import com.wechat.utils.WechatPayUtils;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,14 +21,15 @@ import java.security.GeneralSecurityException;
 public class DefaultWechatAutoApprovalResultNotifyService implements WechatAutoApprovalResultNotifyService {
     private static final String FAIL_RESPONSE = "{\"code\":\"FAIL\",\"message\":\"失败\"}";
 
-    private final MerchantIdentityProperties merchantIdentityProperties;
+    private final WechatMerchantConfigProvider provider;
 
     @Override
     public AutoApprovalResultNotifyEntity parseNotify(HttpServletRequest request, HttpServletResponse response) {
         try {
             String body = request.getReader().lines().reduce("", String::concat);
             CallbackNotifyRequest notifyRequest = WechatPayUtils.fromJson(body, CallbackNotifyRequest.class);
-            AesUtil aesUtil = new AesUtil(merchantIdentityProperties.getApiV3Secret().getBytes(StandardCharsets.UTF_8));
+            WechatMerchantConfig config = getMerchantConfig();
+            AesUtil aesUtil = new AesUtil(config.getApiV3Secret().getBytes(StandardCharsets.UTF_8));
             String decryptJson = aesUtil.decryptToString(
                     notifyRequest.resource.associatedData.getBytes(StandardCharsets.UTF_8),
                     notifyRequest.resource.nonce.getBytes(StandardCharsets.UTF_8),
@@ -57,6 +59,17 @@ public class DefaultWechatAutoApprovalResultNotifyService implements WechatAutoA
         } catch (IOException e) {
             log.error("DefaultWechatAutoApprovalResultNotifyService.writeFailResponse 回写免确认收款授权结果通知失败应答异常", e);
         }
+    }
+
+    private WechatMerchantConfig getMerchantConfig() {
+        WechatMerchantConfig config = provider.getConfig();
+        if (config == null) {
+            throw new IllegalStateException("未获取到微信商户配置");
+        }
+        if (config.getApiV3Secret() == null || config.getApiV3Secret().trim().isEmpty()) {
+            throw new IllegalStateException("微信商户配置缺少APIv3密钥");
+        }
+        return config;
     }
 
     /**
