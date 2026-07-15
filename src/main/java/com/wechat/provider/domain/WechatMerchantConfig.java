@@ -4,6 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.security.PrivateKey;
+import java.security.PublicKey;
+
 /**
  * 微信商户配置快照。
  * <p>
@@ -22,7 +25,7 @@ public class WechatMerchantConfig {
     /**
      * 微信支付商户号。
      */
-    private String merchantId;
+    private String mchid;
 
     /**
      * 微信应用唯一标识。
@@ -37,22 +40,22 @@ public class WechatMerchantConfig {
     /**
      * 商户 API 证书私钥内容。
      */
-    private String certificate;
+    private PrivateKey privateKey;
 
     /**
      * 商户 API 证书序列号。
      */
-    private String serialNo;
+    private String certificateSerialNo;
 
     /**
      * 微信支付公钥内容。
      */
-    private String publicKey;
+    private PublicKey wechatPayPublicKey;
 
     /**
      * 微信支付公钥 ID。
      */
-    private String publicKeyId;
+    private String wechatPayPublicKeyId;
 
     /**
      * 微信支付 APIv3 密钥。

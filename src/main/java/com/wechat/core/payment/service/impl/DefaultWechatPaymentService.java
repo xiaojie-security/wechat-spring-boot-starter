@@ -27,8 +27,6 @@ import okhttp3.Response;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,182 +38,182 @@ public class DefaultWechatPaymentService implements WechatPaymentService {
 
     @Override
     public PaymentPrepayResponse jsapiPrepay(PaymentPrepayRequest request) {
-        String HOST = "https://api.mch.weixin.qq.com";
-        String METHOD = "POST";
-        String PATH = "/v3/pay/transactions/jsapi";
-        MerchantRuntime runtime = getMerchantRuntime();
+        String host = "https://api.mch.weixin.qq.com";
+        String method = "POST";
+        String path = "/v3/pay/transactions/jsapi";
+        WechatMerchantConfig config = getMerchantConfig();
 
         if (isBlank(request.appid)) {
-            request.appid = runtime.appid;
+            request.appid = config.getAppid();
         }
         if (isBlank(request.mchid)) {
-            request.mchid = runtime.mchid;
+            request.mchid = config.getMchid();
         }
 
         String reqBody = WechatPayUtils.toJson(request);
-        return executeJsonRequest(runtime, HOST, METHOD, PATH, reqBody, PaymentPrepayResponse.class);
+        return executeJsonRequest(config, host, method, path, reqBody, PaymentPrepayResponse.class);
     }
 
     @Override
     public PaymentPrepayResponse appPrepay(PaymentPrepayRequest request) {
-        String HOST = "https://api.mch.weixin.qq.com";
-        String METHOD = "POST";
-        String PATH = "/v3/pay/transactions/app";
-        MerchantRuntime runtime = getMerchantRuntime();
+        String host = "https://api.mch.weixin.qq.com";
+        String method = "POST";
+        String path = "/v3/pay/transactions/app";
+        WechatMerchantConfig config = getMerchantConfig();
 
         if (isBlank(request.appid)) {
-            request.appid = runtime.appid;
+            request.appid = config.getAppid();
         }
         if (isBlank(request.mchid)) {
-            request.mchid = runtime.mchid;
+            request.mchid = config.getMchid();
         }
 
         String reqBody = WechatPayUtils.toJson(request);
-        return executeJsonRequest(runtime, HOST, METHOD, PATH, reqBody, PaymentPrepayResponse.class);
+        return executeJsonRequest(config, host, method, path, reqBody, PaymentPrepayResponse.class);
     }
 
     @Override
     public PaymentPrepayResponse h5Prepay(PaymentPrepayRequest request) {
-        String HOST = "https://api.mch.weixin.qq.com";
-        String METHOD = "POST";
-        String PATH = "/v3/pay/transactions/h5";
-        MerchantRuntime runtime = getMerchantRuntime();
+        String host = "https://api.mch.weixin.qq.com";
+        String method = "POST";
+        String path = "/v3/pay/transactions/h5";
+        WechatMerchantConfig config = getMerchantConfig();
 
         if (isBlank(request.appid)) {
-            request.appid = runtime.appid;
+            request.appid = config.getAppid();
         }
         if (isBlank(request.mchid)) {
-            request.mchid = runtime.mchid;
+            request.mchid = config.getMchid();
         }
 
         String reqBody = WechatPayUtils.toJson(request);
-        return executeJsonRequest(runtime, HOST, METHOD, PATH, reqBody, PaymentPrepayResponse.class);
+        return executeJsonRequest(config, host, method, path, reqBody, PaymentPrepayResponse.class);
     }
 
     @Override
     public PaymentPrepayResponse nativePrepay(PaymentPrepayRequest request) {
-        String HOST = "https://api.mch.weixin.qq.com";
-        String METHOD = "POST";
-        String PATH = "/v3/pay/transactions/native";
-        MerchantRuntime runtime = getMerchantRuntime();
+        String host = "https://api.mch.weixin.qq.com";
+        String method = "POST";
+        String path = "/v3/pay/transactions/native";
+        WechatMerchantConfig config = getMerchantConfig();
 
         if (isBlank(request.appid)) {
-            request.appid = runtime.appid;
+            request.appid = config.getAppid();
         }
         if (isBlank(request.mchid)) {
-            request.mchid = runtime.mchid;
+            request.mchid = config.getMchid();
         }
 
         String reqBody = WechatPayUtils.toJson(request);
-        return executeJsonRequest(runtime, HOST, METHOD, PATH, reqBody, PaymentPrepayResponse.class);
+        return executeJsonRequest(config, host, method, path, reqBody, PaymentPrepayResponse.class);
     }
 
     @Override
     public PaymentOrderEntity queryOrderByTransactionId(QueryOrderByTransactionIdRequest request) {
-        String HOST = "https://api.mch.weixin.qq.com";
-        String METHOD = "GET";
-        String PATH = "/v3/pay/transactions/id/{transaction_id}";
-        MerchantRuntime runtime = getMerchantRuntime();
+        String host = "https://api.mch.weixin.qq.com";
+        String method = "GET";
+        String path = "/v3/pay/transactions/id/{transaction_id}";
+        WechatMerchantConfig config = getMerchantConfig();
 
         if (isBlank(request.mchid)) {
-            request.mchid = runtime.mchid;
+            request.mchid = config.getMchid();
         }
 
-        String uri = PATH.replace("{transaction_id}", WechatPayUtils.urlEncode(request.transactionId));
+        String uri = path.replace("{transaction_id}", WechatPayUtils.urlEncode(request.transactionId));
         Map<String, Object> args = new HashMap<>();
         args.put("mchid", request.mchid);
         String queryString = WechatPayUtils.urlEncode(args);
         if (!queryString.isEmpty()) {
             uri = uri + "?" + queryString;
         }
-        return executeJsonRequest(runtime, HOST, METHOD, uri, null, PaymentOrderEntity.class);
+        return executeJsonRequest(config, host, method, uri, null, PaymentOrderEntity.class);
     }
 
     @Override
     public PaymentOrderEntity queryOrderByOutTradeNo(QueryOrderByOutTradeNoRequest request) {
-        String HOST = "https://api.mch.weixin.qq.com";
-        String METHOD = "GET";
-        String PATH = "/v3/pay/transactions/out-trade-no/{out_trade_no}";
-        MerchantRuntime runtime = getMerchantRuntime();
+        String host = "https://api.mch.weixin.qq.com";
+        String method = "GET";
+        String path = "/v3/pay/transactions/out-trade-no/{out_trade_no}";
+        WechatMerchantConfig config = getMerchantConfig();
 
         if (isBlank(request.mchid)) {
-            request.mchid = runtime.mchid;
+            request.mchid = config.getMchid();
         }
 
-        String uri = PATH.replace("{out_trade_no}", WechatPayUtils.urlEncode(request.outTradeNo));
+        String uri = path.replace("{out_trade_no}", WechatPayUtils.urlEncode(request.outTradeNo));
         Map<String, Object> args = new HashMap<>();
         args.put("mchid", request.mchid);
         String queryString = WechatPayUtils.urlEncode(args);
         if (!queryString.isEmpty()) {
             uri = uri + "?" + queryString;
         }
-        return executeJsonRequest(runtime, HOST, METHOD, uri, null, PaymentOrderEntity.class);
+        return executeJsonRequest(config, host, method, uri, null, PaymentOrderEntity.class);
     }
 
     @Override
     public void closeOrder(PaymentCloseOrderRequest request) {
-        String HOST = "https://api.mch.weixin.qq.com";
-        String METHOD = "POST";
-        String PATH = "/v3/pay/transactions/out-trade-no/{out_trade_no}/close";
-        MerchantRuntime runtime = getMerchantRuntime();
+        String host = "https://api.mch.weixin.qq.com";
+        String method = "POST";
+        String path = "/v3/pay/transactions/out-trade-no/{out_trade_no}/close";
+        WechatMerchantConfig config = getMerchantConfig();
 
         if (isBlank(request.mchid)) {
-            request.mchid = runtime.mchid;
+            request.mchid = config.getMchid();
         }
 
-        String uri = PATH.replace("{out_trade_no}", WechatPayUtils.urlEncode(request.outTradeNo));
+        String uri = path.replace("{out_trade_no}", WechatPayUtils.urlEncode(request.outTradeNo));
         String reqBody = WechatPayUtils.toJson(request);
-        executeNoContentRequest(runtime, HOST, METHOD, uri, reqBody);
+        executeNoContentRequest(config, host, method, uri, reqBody);
     }
 
     @Override
     public RefundEntity createRefund(RefundRequest request) {
-        String HOST = "https://api.mch.weixin.qq.com";
-        String METHOD = "POST";
-        String PATH = "/v3/refund/domestic/refunds";
-        MerchantRuntime runtime = getMerchantRuntime();
+        String host = "https://api.mch.weixin.qq.com";
+        String method = "POST";
+        String path = "/v3/refund/domestic/refunds";
+        WechatMerchantConfig config = getMerchantConfig();
 
         String reqBody = WechatPayUtils.toJson(request);
-        return executeJsonRequest(runtime, HOST, METHOD, PATH, reqBody, RefundEntity.class);
+        return executeJsonRequest(config, host, method, path, reqBody, RefundEntity.class);
     }
 
     @Override
     public RefundEntity queryRefundByOutRefundNo(QueryRefundByOutRefundNoRequest request) {
-        String HOST = "https://api.mch.weixin.qq.com";
-        String METHOD = "GET";
-        String PATH = "/v3/refund/domestic/refunds/{out_refund_no}";
-        MerchantRuntime runtime = getMerchantRuntime();
+        String host = "https://api.mch.weixin.qq.com";
+        String method = "GET";
+        String path = "/v3/refund/domestic/refunds/{out_refund_no}";
+        WechatMerchantConfig config = getMerchantConfig();
 
-        String uri = PATH.replace("{out_refund_no}", WechatPayUtils.urlEncode(request.outRefundNo));
-        return executeJsonRequest(runtime, HOST, METHOD, uri, null, RefundEntity.class);
+        String uri = path.replace("{out_refund_no}", WechatPayUtils.urlEncode(request.outRefundNo));
+        return executeJsonRequest(config, host, method, uri, null, RefundEntity.class);
     }
 
     @Override
     public RefundEntity createAbnormalRefund(AbnormalRefundRequest request) {
-        String HOST = "https://api.mch.weixin.qq.com";
-        String METHOD = "POST";
-        String PATH = "/v3/refund/domestic/refunds/{refund_id}/apply-abnormal-refund";
-        MerchantRuntime runtime = getMerchantRuntime();
+        String host = "https://api.mch.weixin.qq.com";
+        String method = "POST";
+        String path = "/v3/refund/domestic/refunds/{refund_id}/apply-abnormal-refund";
+        WechatMerchantConfig config = getMerchantConfig();
 
-        String uri = PATH.replace("{refund_id}", WechatPayUtils.urlEncode(request.refundId));
-        if (request.bankAccount != null && !request.bankAccount.isEmpty()) {
-            request.bankAccount = WechatPayUtils.encrypt(runtime.wechatPayPublicKey, request.bankAccount);
+        String uri = path.replace("{refund_id}", WechatPayUtils.urlEncode(request.refundId));
+        if (!isBlank(request.bankAccount)) {
+            request.bankAccount = WechatPayUtils.encrypt(config.getWechatPayPublicKey(), request.bankAccount);
         }
-        if (request.realName != null && !request.realName.isEmpty()) {
-            request.realName = WechatPayUtils.encrypt(runtime.wechatPayPublicKey, request.realName);
+        if (!isBlank(request.realName)) {
+            request.realName = WechatPayUtils.encrypt(config.getWechatPayPublicKey(), request.realName);
         }
         String reqBody = WechatPayUtils.toJson(request);
-        return executeJsonRequest(runtime, HOST, METHOD, uri, reqBody, RefundEntity.class);
+        return executeJsonRequest(config, host, method, uri, reqBody, RefundEntity.class);
     }
 
     @Override
     public BillDownloadEntity getTradeBill(TradeBillRequest request) {
-        String HOST = "https://api.mch.weixin.qq.com";
-        String METHOD = "GET";
-        String PATH = "/v3/bill/tradebill";
-        MerchantRuntime runtime = getMerchantRuntime();
+        String host = "https://api.mch.weixin.qq.com";
+        String method = "GET";
+        String path = "/v3/bill/tradebill";
+        WechatMerchantConfig config = getMerchantConfig();
 
-        String uri = PATH;
+        String uri = path;
         Map<String, Object> args = new HashMap<>();
         args.put("bill_date", request.billDate);
         args.put("bill_type", request.billType);
@@ -224,17 +222,17 @@ public class DefaultWechatPaymentService implements WechatPaymentService {
         if (!queryString.isEmpty()) {
             uri = uri + "?" + queryString;
         }
-        return executeJsonRequest(runtime, HOST, METHOD, uri, null, BillDownloadEntity.class);
+        return executeJsonRequest(config, host, method, uri, null, BillDownloadEntity.class);
     }
 
     @Override
     public BillDownloadEntity getFundFlowBill(FundFlowBillRequest request) {
-        String HOST = "https://api.mch.weixin.qq.com";
-        String METHOD = "GET";
-        String PATH = "/v3/bill/fundflowbill";
-        MerchantRuntime runtime = getMerchantRuntime();
+        String host = "https://api.mch.weixin.qq.com";
+        String method = "GET";
+        String path = "/v3/bill/fundflowbill";
+        WechatMerchantConfig config = getMerchantConfig();
 
-        String uri = PATH;
+        String uri = path;
         Map<String, Object> args = new HashMap<>();
         args.put("bill_date", request.billDate);
         args.put("account_type", request.accountType);
@@ -243,17 +241,17 @@ public class DefaultWechatPaymentService implements WechatPaymentService {
         if (!queryString.isEmpty()) {
             uri = uri + "?" + queryString;
         }
-        return executeJsonRequest(runtime, HOST, METHOD, uri, null, BillDownloadEntity.class);
+        return executeJsonRequest(config, host, method, uri, null, BillDownloadEntity.class);
     }
 
-    private <T> T executeJsonRequest(MerchantRuntime runtime, String host, String method, String uri,
+    private <T> T executeJsonRequest(WechatMerchantConfig config, String host, String method, String uri,
                                      String reqBody, Class<T> responseClass) {
         Request.Builder reqBuilder = new Request.Builder().url(host + uri);
         reqBuilder.addHeader("Accept", "application/json");
-        reqBuilder.addHeader("Wechatpay-Serial", runtime.wechatPayPublicKeyId);
+        reqBuilder.addHeader("Wechatpay-Serial", config.getWechatPayPublicKeyId());
         reqBuilder.addHeader("Authorization",
-                WechatPayUtils.buildAuthorization(runtime.mchid, runtime.certificateSerialNo,
-                        runtime.privateKey, method, uri, reqBody));
+                WechatPayUtils.buildAuthorization(config.getMchid(), config.getCertificateSerialNo(),
+                        config.getPrivateKey(), method, uri, reqBody));
         if (reqBody != null) {
             reqBuilder.addHeader("Content-Type", "application/json");
             RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), reqBody);
@@ -266,7 +264,7 @@ public class DefaultWechatPaymentService implements WechatPaymentService {
         try (Response httpResponse = client.newCall(httpRequest).execute()) {
             String respBody = WechatPayUtils.extractBody(httpResponse);
             if (httpResponse.code() >= 200 && httpResponse.code() < 300) {
-                WechatPayUtils.validateResponse(runtime.wechatPayPublicKeyId, runtime.wechatPayPublicKey,
+                WechatPayUtils.validateResponse(config.getWechatPayPublicKeyId(), config.getWechatPayPublicKey(),
                         httpResponse.headers(), respBody);
                 return WechatPayUtils.fromJson(respBody, responseClass);
             } else {
@@ -280,14 +278,14 @@ public class DefaultWechatPaymentService implements WechatPaymentService {
         }
     }
 
-    private void executeNoContentRequest(MerchantRuntime runtime, String host, String method, String uri,
+    private void executeNoContentRequest(WechatMerchantConfig config, String host, String method, String uri,
                                          String reqBody) {
         Request.Builder reqBuilder = new Request.Builder().url(host + uri);
         reqBuilder.addHeader("Accept", "application/json");
-        reqBuilder.addHeader("Wechatpay-Serial", runtime.wechatPayPublicKeyId);
+        reqBuilder.addHeader("Wechatpay-Serial", config.getWechatPayPublicKeyId());
         reqBuilder.addHeader("Authorization",
-                WechatPayUtils.buildAuthorization(runtime.mchid, runtime.certificateSerialNo,
-                        runtime.privateKey, method, uri, reqBody));
+                WechatPayUtils.buildAuthorization(config.getMchid(), config.getCertificateSerialNo(),
+                        config.getPrivateKey(), method, uri, reqBody));
         reqBuilder.addHeader("Content-Type", "application/json");
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), reqBody);
         reqBuilder.method(method, requestBody);
@@ -307,41 +305,15 @@ public class DefaultWechatPaymentService implements WechatPaymentService {
         }
     }
 
-    private MerchantRuntime getMerchantRuntime() {
+    private WechatMerchantConfig getMerchantConfig() {
         WechatMerchantConfig config = provider.getConfig();
         if (config == null) {
             throw new IllegalStateException("未获取到微信商户配置");
         }
-        return new MerchantRuntime(
-                config.getMerchantId(),
-                config.getAppid(),
-                config.getSerialNo(),
-                config.getPublicKeyId(),
-                WechatPayUtils.loadPrivateKeyFromString(config.getCertificate()),
-                WechatPayUtils.loadPublicKeyFromString(config.getPublicKey())
-        );
+        return config;
     }
 
     private boolean isBlank(String value) {
         return value == null || value.isEmpty();
-    }
-
-    private static final class MerchantRuntime {
-        private final String mchid;
-        private final String appid;
-        private final String certificateSerialNo;
-        private final String wechatPayPublicKeyId;
-        private final PrivateKey privateKey;
-        private final PublicKey wechatPayPublicKey;
-
-        private MerchantRuntime(String mchid, String appid, String certificateSerialNo, String wechatPayPublicKeyId,
-                                PrivateKey privateKey, PublicKey wechatPayPublicKey) {
-            this.mchid = mchid;
-            this.appid = appid;
-            this.certificateSerialNo = certificateSerialNo;
-            this.wechatPayPublicKeyId = wechatPayPublicKeyId;
-            this.privateKey = privateKey;
-            this.wechatPayPublicKey = wechatPayPublicKey;
-        }
     }
 }

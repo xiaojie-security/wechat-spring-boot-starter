@@ -2,7 +2,7 @@ package com.wechat.config;
 
 import com.wechat.properties.MerchantIdentityProperties;
 import com.wechat.provider.WechatMerchantConfigProvider;
-import com.wechat.provider.impl.PropertiesWechatMerchantConfigProvider;
+import com.wechat.provider.PropertiesWechatMerchantConfigProvider;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
