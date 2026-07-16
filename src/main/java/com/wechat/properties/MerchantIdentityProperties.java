@@ -23,6 +23,11 @@ public class MerchantIdentityProperties implements InitializingBean {
     private String appid;
 
     /**
+     * 应用密钥 AppSecret，在微信开放平台提交应用审核通过后获得
+     */
+    private String appSecret;
+
+    /**
      * 商户发起APIv3接口请求时，需要使用商户API证书私钥对请求进行签名。
      */
     private String certificate;
@@ -64,8 +69,6 @@ public class MerchantIdentityProperties implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        log.info("MerchantIdentityProperties.afterPropertiesSet initialized");
-        this.publicKey = ConfigStringLoader.load(this.publicKey, "微信支付公钥");
-        this.certificate = ConfigStringLoader.load(this.certificate, "商户API证书私钥");
+        log.debug("MerchantIdentityProperties.afterPropertiesSet 加载成功");
     }
 }
