@@ -3,7 +3,7 @@ package com.wechat.core.oauth2.impl;
 import cn.hutool.core.net.url.UrlBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
-import com.wechat.core.oauth2.WechatOAuth2Service;
+import com.wechat.core.oauth2.WechatWebpageOAuth2Service;
 import com.wechat.core.oauth2.domain.*;
 import com.wechat.provider.WechatMerchantConfigProvider;
 import com.wechat.provider.domain.WechatMerchantConfig;
@@ -19,7 +19,7 @@ import java.io.UncheckedIOException;
 
 @Slf4j
 @RequiredArgsConstructor
-public class DefaultWechatOAuth2Service implements WechatOAuth2Service {
+public class DefaultWechatWebpageOAuth2Service implements WechatWebpageOAuth2Service {
 
     private static final String AUTH_URL_HOST = "https://open.weixin.qq.com/connect/qrconnect";
     private static final String ACCESS_TOKEN_URL = "https://api.weixin.qq.com/sns/oauth2/access_token";

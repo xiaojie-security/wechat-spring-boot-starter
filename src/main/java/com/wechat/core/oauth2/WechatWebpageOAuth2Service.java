@@ -3,7 +3,7 @@ package com.wechat.core.oauth2;
 import com.wechat.core.oauth2.domain.*;
 
 
-public interface WechatOAuth2Service {
+public interface WechatWebpageOAuth2Service {
 
     String generateAuthUrl(AuthorizationRequest request);
 
