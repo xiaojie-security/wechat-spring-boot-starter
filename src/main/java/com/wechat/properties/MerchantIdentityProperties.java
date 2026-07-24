@@ -76,6 +76,11 @@ public class MerchantIdentityProperties implements InitializingBean {
      */
     private String transferNotifyUrl;
 
+    /**
+     * 免确认收款授权结果通知
+     */
+    private String authorizationNotifyUrl;
+
     @Override
     public void afterPropertiesSet() throws Exception {
         log.debug("MerchantIdentityProperties.afterPropertiesSet 加载成功");

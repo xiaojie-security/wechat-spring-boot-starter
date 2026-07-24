@@ -27,7 +27,8 @@ public class PropertiesWechatMerchantConfigProvider implements WechatMerchantCon
                 properties.getPublicKeyId(),
                 properties.getApiV3Secret(),
                 properties.getPaymentNotifyUrl(),
-                properties.getTransferNotifyUrl()
+                properties.getTransferNotifyUrl(),
+                properties.getAuthorizationNotifyUrl()
         );
     }
 }

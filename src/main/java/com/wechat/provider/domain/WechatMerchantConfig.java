@@ -71,4 +71,9 @@ public class WechatMerchantConfig {
      * 商家转账异步通知地址
      */
     private String transferNotifyUrl;
+
+    /**
+     * 免确认收款授权结果通知
+     */
+    private String authorizationNotifyUrl;
 }
