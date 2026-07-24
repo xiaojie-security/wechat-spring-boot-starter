@@ -92,4 +92,18 @@ public class TransferToUserRequest {
      */
     @SerializedName("sponsor_mchid")
     public String sponsorMchid;
+
+    /**
+     * 微信免确认收款授权单号。
+     * 与 outAuthorizationNo 二选一，用于用户授权后转账。
+     */
+    @SerializedName("authorization_id")
+    public String authorizationId;
+
+    /**
+     * 商户侧免确认收款授权单号。
+     * 与 authorizationId 二选一，用于用户授权后转账。
+     */
+    @SerializedName("out_authorization_no")
+    public String outAuthorizationNo;
 }

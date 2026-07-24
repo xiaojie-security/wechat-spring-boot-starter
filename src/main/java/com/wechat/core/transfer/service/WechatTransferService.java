@@ -7,6 +7,7 @@ import com.wechat.core.transfer.domain.GetTransferBillByOutNoRequest;
 import com.wechat.core.transfer.domain.TransferToUserRequest;
 import com.wechat.core.transfer.domain.TransferToUserResponse;
 import com.wechat.core.transfer.domain.TransferBillEntity;
+import com.wechat.core.transfer.domain.UserConfirmAuthorizationRequest;
 import com.wechat.core.transfer.domain.UserConfirmAuthorizationEntity;
 
 /**
@@ -14,6 +15,24 @@ import com.wechat.core.transfer.domain.UserConfirmAuthorizationEntity;
  * 封装发起转账、查询转账单、查询授权结果和解除授权等能力。
  */
 public interface WechatTransferService {
+    /**
+     * 发起免确认收款授权。
+     *
+     * @param request 免确认收款授权请求参数，需包含商户授权单号、用户 OpenID、转账场景和授权通知地址；
+     *                其中 {@code appid} 未传时自动使用服务中已初始化的商户应用 AppID
+     * @return 授权受理结果，包含授权状态和拉起用户授权页面所需的 package 信息
+     */
+    UserConfirmAuthorizationEntity createAuthorization(UserConfirmAuthorizationRequest request);
+
+    /**
+     * 用户完成免确认收款授权后发起转账。
+     *
+     * @param request 转账请求参数，需通过 {@code authorizationId} 或 {@code outAuthorizationNo}
+     *                指定已生效的用户授权；其中 {@code appid} 未传时自动使用服务中已初始化的商户应用 AppID
+     * @return 转账受理结果
+     */
+    TransferToUserResponse transferAfterAuthorization(TransferToUserRequest request);
+
     /**
      * 发起转账并完成免确认收款授权。
      *

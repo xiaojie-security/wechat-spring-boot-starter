@@ -9,6 +9,12 @@ import com.wechat.core.transfer.enums.TransferBillStatus;
  */
 public class TransferToUserResponse {
     /**
+     * 微信支付商户号。
+     */
+    @SerializedName("mch_id")
+    public String mchId;
+
+    /**
      * 商户转账单号。
      * 与请求中的 outBillNo 对应，便于商户系统关联自己的业务单。
      */
@@ -23,6 +29,12 @@ public class TransferToUserResponse {
     public String transferBillNo;
 
     /**
+     * 商户应用 AppID。
+     */
+    @SerializedName("appid")
+    public String appid;
+
+    /**
      * 转账单创建时间。
      */
     @SerializedName("create_time")
@@ -34,6 +46,42 @@ public class TransferToUserResponse {
      */
     @SerializedName("state")
     public TransferBillStatus state;
+
+    /**
+     * 转账金额，单位为分。
+     */
+    @SerializedName("transfer_amount")
+    public Long transferAmount;
+
+    /**
+     * 转账备注。
+     */
+    @SerializedName("transfer_remark")
+    public String transferRemark;
+
+    /**
+     * 转账失败原因。
+     */
+    @SerializedName("fail_reason")
+    public String failReason;
+
+    /**
+     * 收款用户 OpenID。
+     */
+    @SerializedName("openid")
+    public String openid;
+
+    /**
+     * 收款用户真实姓名密文。
+     */
+    @SerializedName("user_name")
+    public String userName;
+
+    /**
+     * 最后一次状态变更时间。
+     */
+    @SerializedName("update_time")
+    public String updateTime;
 
     /**
      * 收款确认拉起参数。

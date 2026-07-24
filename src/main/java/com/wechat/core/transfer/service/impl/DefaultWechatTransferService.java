@@ -7,6 +7,7 @@ import com.wechat.core.transfer.domain.GetTransferBillByOutNoRequest;
 import com.wechat.core.transfer.domain.TransferBillEntity;
 import com.wechat.core.transfer.domain.TransferToUserRequest;
 import com.wechat.core.transfer.domain.TransferToUserResponse;
+import com.wechat.core.transfer.domain.UserConfirmAuthorizationRequest;
 import com.wechat.core.transfer.domain.UserConfirmAuthorizationEntity;
 import com.wechat.core.transfer.service.WechatTransferService;
 import com.wechat.provider.WechatMerchantConfigProvider;
@@ -31,6 +32,102 @@ public class DefaultWechatTransferService implements WechatTransferService {
 
     private final WechatMerchantConfigProvider provider;
     private final OkHttpClient client = new OkHttpClient.Builder().build();
+
+    @Override
+    public UserConfirmAuthorizationEntity createAuthorization(UserConfirmAuthorizationRequest request) {
+        String host = "https://api.mch.weixin.qq.com";
+        String method = "POST";
+        String path = "/v3/fund-app/mch-transfer/user-confirm-authorization";
+        WechatMerchantConfig config = getMerchantConfig();
+
+        if (isBlank(request.appid)) {
+            request.appid = config.getAppid();
+        }
+        if (isBlank(request.authorizationNotifyUrl)) {
+            request.authorizationNotifyUrl = config.getAuthorizationNotifyUrl();
+        }
+
+        String reqBody = WechatPayUtils.toJson(request);
+        Request.Builder reqBuilder = new Request.Builder().url(host + path);
+        reqBuilder.addHeader("Accept", "application/json");
+        reqBuilder.addHeader("Wechatpay-Serial", config.getWechatPayPublicKeyId());
+        reqBuilder.addHeader("Authorization",
+                WechatPayUtils.buildAuthorization(
+                        config.getMchid(),
+                        config.getCertificateSerialNo(),
+                        config.getPrivateKey(),
+                        method,
+                        path,
+                        reqBody));
+        reqBuilder.addHeader("Content-Type", "application/json");
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), reqBody);
+        reqBuilder.method(method, requestBody);
+        Request httpRequest = reqBuilder.build();
+
+        try (Response httpResponse = client.newCall(httpRequest).execute()) {
+            String respBody = WechatPayUtils.extractBody(httpResponse);
+            if (httpResponse.code() >= 200 && httpResponse.code() < 300) {
+                WechatPayUtils.validateResponse(config.getWechatPayPublicKeyId(), config.getWechatPayPublicKey(),
+                        httpResponse.headers(), respBody);
+                return WechatPayUtils.fromJson(respBody, UserConfirmAuthorizationEntity.class);
+            } else {
+                log.error("DefaultWechatTransferService.createAuthorization 请求微信免确认收款授权接口失败，path={}, code={}, respBody={}",
+                        path, httpResponse.code(), respBody);
+                throw new WechatPayUtils.ApiException(httpResponse.code(), respBody, httpResponse.headers());
+            }
+        } catch (IOException e) {
+            log.error("DefaultWechatTransferService.createAuthorization 调用微信免确认收款授权接口异常，path={}", path, e);
+            throw new UncheckedIOException("Sending request to " + path + " failed.", e);
+        }
+    }
+
+    @Override
+    public TransferToUserResponse transferAfterAuthorization(TransferToUserRequest request) {
+        String host = "https://api.mch.weixin.qq.com";
+        String method = "POST";
+        String path = "/v3/fund-app/mch-transfer/transfer-bills/transfer";
+        WechatMerchantConfig config = getMerchantConfig();
+
+        if (isBlank(request.appid)) {
+            request.appid = config.getAppid();
+        }
+        if (!isBlank(request.userName)) {
+            request.userName = WechatPayUtils.encrypt(config.getWechatPayPublicKey(), request.userName);
+        }
+
+        String reqBody = WechatPayUtils.toJson(request);
+        Request.Builder reqBuilder = new Request.Builder().url(host + path);
+        reqBuilder.addHeader("Accept", "application/json");
+        reqBuilder.addHeader("Wechatpay-Serial", config.getWechatPayPublicKeyId());
+        reqBuilder.addHeader("Authorization",
+                WechatPayUtils.buildAuthorization(
+                        config.getMchid(),
+                        config.getCertificateSerialNo(),
+                        config.getPrivateKey(),
+                        method,
+                        path,
+                        reqBody));
+        reqBuilder.addHeader("Content-Type", "application/json");
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), reqBody);
+        reqBuilder.method(method, requestBody);
+        Request httpRequest = reqBuilder.build();
+
+        try (Response httpResponse = client.newCall(httpRequest).execute()) {
+            String respBody = WechatPayUtils.extractBody(httpResponse);
+            if (httpResponse.code() >= 200 && httpResponse.code() < 300) {
+                WechatPayUtils.validateResponse(config.getWechatPayPublicKeyId(), config.getWechatPayPublicKey(),
+                        httpResponse.headers(), respBody);
+                return WechatPayUtils.fromJson(respBody, TransferToUserResponse.class);
+            } else {
+                log.error("DefaultWechatTransferService.transferAfterAuthorization 请求微信授权后转账接口失败，path={}, code={}, respBody={}",
+                        path, httpResponse.code(), respBody);
+                throw new WechatPayUtils.ApiException(httpResponse.code(), respBody, httpResponse.headers());
+            }
+        } catch (IOException e) {
+            log.error("DefaultWechatTransferService.transferAfterAuthorization 调用微信授权后转账接口异常，path={}", path, e);
+            throw new UncheckedIOException("Sending request to " + path + " failed.", e);
+        }
+    }
 
     @Override
     public TransferToUserResponse transferWithAutoApproval(TransferToUserRequest request) {
