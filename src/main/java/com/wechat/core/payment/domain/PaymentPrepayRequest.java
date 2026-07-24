@@ -1,4 +1,4 @@
-package com.wechat.core.payment.domain;
+﻿package com.wechat.core.payment.domain;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -53,6 +53,7 @@ public class PaymentPrepayRequest {
 
     /**
      * 支付结果通知地址。
+     * 外部未显式传递时，服务层会从商户配置快照注入 paymentNotifyUrl。
      */
     @SerializedName("notify_url")
     public String notifyUrl;

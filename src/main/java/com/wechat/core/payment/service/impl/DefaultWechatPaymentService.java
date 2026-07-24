@@ -1,4 +1,4 @@
-package com.wechat.core.payment.service.impl;
+﻿package com.wechat.core.payment.service.impl;
 
 import com.wechat.core.payment.domain.AbnormalRefundRequest;
 import com.wechat.core.payment.domain.BillDownloadEntity;
@@ -49,6 +49,9 @@ public class DefaultWechatPaymentService implements WechatPaymentService {
         if (isBlank(request.mchid)) {
             request.mchid = config.getMchid();
         }
+        if (isBlank(request.notifyUrl)) {
+            request.notifyUrl = config.getPaymentNotifyUrl();
+        }
 
         String reqBody = WechatPayUtils.toJson(request);
         return executeJsonRequest(config, host, method, path, reqBody, PaymentPrepayResponse.class);
@@ -66,6 +69,9 @@ public class DefaultWechatPaymentService implements WechatPaymentService {
         }
         if (isBlank(request.mchid)) {
             request.mchid = config.getMchid();
+        }
+        if (isBlank(request.notifyUrl)) {
+            request.notifyUrl = config.getPaymentNotifyUrl();
         }
 
         String reqBody = WechatPayUtils.toJson(request);
@@ -85,6 +91,9 @@ public class DefaultWechatPaymentService implements WechatPaymentService {
         if (isBlank(request.mchid)) {
             request.mchid = config.getMchid();
         }
+        if (isBlank(request.notifyUrl)) {
+            request.notifyUrl = config.getPaymentNotifyUrl();
+        }
 
         String reqBody = WechatPayUtils.toJson(request);
         return executeJsonRequest(config, host, method, path, reqBody, PaymentPrepayResponse.class);
@@ -102,6 +111,9 @@ public class DefaultWechatPaymentService implements WechatPaymentService {
         }
         if (isBlank(request.mchid)) {
             request.mchid = config.getMchid();
+        }
+        if (isBlank(request.notifyUrl)) {
+            request.notifyUrl = config.getPaymentNotifyUrl();
         }
 
         String reqBody = WechatPayUtils.toJson(request);

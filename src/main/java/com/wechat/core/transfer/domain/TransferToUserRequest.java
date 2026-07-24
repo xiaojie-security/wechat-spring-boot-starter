@@ -1,4 +1,4 @@
-package com.wechat.core.transfer.domain;
+﻿package com.wechat.core.transfer.domain;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -60,6 +60,7 @@ public class TransferToUserRequest {
     /**
      * 转账结果回调通知地址。
      * 微信支付在转账状态变更后会向该地址推送通知。
+     * 外部未显式传递时，服务层会从商户配置快照注入 transferNotifyUrl。
      */
     @SerializedName("notify_url")
     public String notifyUrl;

@@ -1,4 +1,4 @@
-package com.wechat.core.transfer.service.impl;
+﻿package com.wechat.core.transfer.service.impl;
 
 import com.wechat.core.transfer.domain.CloseAuthorizationRequest;
 import com.wechat.core.transfer.domain.GetRequest;
@@ -41,6 +41,9 @@ public class DefaultWechatTransferService implements WechatTransferService {
 
         if (isBlank(request.appid)) {
             request.appid = config.getAppid();
+        }
+        if (isBlank(request.notifyUrl)) {
+            request.notifyUrl = config.getTransferNotifyUrl();
         }
         if (!isBlank(request.userName)) {
             request.userName = WechatPayUtils.encrypt(config.getWechatPayPublicKey(), request.userName);
