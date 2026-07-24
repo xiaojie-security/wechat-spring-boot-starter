@@ -32,7 +32,7 @@ public enum TransferBillStatus {
      * 转账中。
      * 微信支付正在继续执行打款流程，结果尚未最终落定。
      */
-    @SerializedName("TRANSFERING")
+    @SerializedName(value = "TRANSFERRING", alternate = {"TRANSFERING"})
     TRANSFERING,
 
     /**

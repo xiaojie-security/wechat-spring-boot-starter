@@ -1,8 +1,10 @@
 package com.wechat.config;
 
 import com.wechat.core.transfer.service.WechatAutoApprovalResultNotifyService;
+import com.wechat.core.transfer.service.WechatTransferCallbackService;
 import com.wechat.core.transfer.service.WechatTransferService;
 import com.wechat.core.transfer.service.impl.DefaultWechatAutoApprovalResultNotifyService;
+import com.wechat.core.transfer.service.impl.DefaultWechatTransferCallbackService;
 import com.wechat.core.transfer.service.impl.DefaultWechatTransferService;
 import com.wechat.provider.WechatMerchantConfigProvider;
 import lombok.RequiredArgsConstructor;
@@ -28,5 +30,11 @@ public class WechatTransferConfiguration {
     @ConditionalOnMissingBean(WechatAutoApprovalResultNotifyService.class)
     public WechatAutoApprovalResultNotifyService wechatAutoApprovalResultNotifyService(WechatMerchantConfigProvider provider) {
         return new DefaultWechatAutoApprovalResultNotifyService(provider);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(WechatTransferCallbackService.class)
+    public WechatTransferCallbackService wechatTransferCallbackService(WechatMerchantConfigProvider provider) {
+        return new DefaultWechatTransferCallbackService(provider);
     }
 }
