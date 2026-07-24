@@ -1,4 +1,4 @@
-﻿package com.wechat.core.payment.service.impl;
+package com.wechat.core.payment.service.impl;
 
 import com.wechat.core.payment.domain.AbnormalRefundRequest;
 import com.wechat.core.payment.domain.BillDownloadEntity;

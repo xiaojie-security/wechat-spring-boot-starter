@@ -1,4 +1,4 @@
-﻿package com.wechat.core.payment.domain;
+package com.wechat.core.payment.domain;
 
 import com.google.gson.annotations.SerializedName;
 

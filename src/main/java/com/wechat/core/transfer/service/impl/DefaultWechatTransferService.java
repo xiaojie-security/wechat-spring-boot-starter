@@ -1,4 +1,4 @@
-﻿package com.wechat.core.transfer.service.impl;
+package com.wechat.core.transfer.service.impl;
 
 import com.wechat.core.transfer.domain.CloseAuthorizationRequest;
 import com.wechat.core.transfer.domain.GetRequest;

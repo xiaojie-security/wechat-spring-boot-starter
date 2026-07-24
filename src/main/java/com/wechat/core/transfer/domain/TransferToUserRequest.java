@@ -1,4 +1,4 @@
-﻿package com.wechat.core.transfer.domain;
+package com.wechat.core.transfer.domain;
 
 import com.google.gson.annotations.SerializedName;
 
