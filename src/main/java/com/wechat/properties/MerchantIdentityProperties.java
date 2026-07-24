@@ -1,7 +1,6 @@
 package com.wechat.properties;
 
 
-import com.wechat.utils.ConfigStringLoader;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
@@ -66,6 +65,16 @@ public class MerchantIdentityProperties implements InitializingBean {
      * 2、在下载平台证书公钥时，需要使用该密钥进行解密。
      */
     private String apiV3Secret;
+
+    /**
+     * 微信支付异步通知地址
+     */
+    private String paymentNotifyUrl;
+
+    /**
+     * 商家转账异步通知地址
+     */
+    private String transferNotifyUrl;
 
     @Override
     public void afterPropertiesSet() throws Exception {

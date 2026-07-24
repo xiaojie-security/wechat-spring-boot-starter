@@ -61,4 +61,14 @@ public class WechatMerchantConfig {
      * 微信支付 APIv3 密钥。
      */
     private String apiV3Secret;
+
+    /**
+     * 微信支付异步通知地址
+     */
+    private String paymentNotifyUrl;
+
+    /**
+     * 商家转账异步通知地址
+     */
+    private String transferNotifyUrl;
 }
