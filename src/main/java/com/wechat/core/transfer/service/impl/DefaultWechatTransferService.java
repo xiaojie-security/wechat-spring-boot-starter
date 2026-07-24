@@ -142,6 +142,9 @@ public class DefaultWechatTransferService implements WechatTransferService {
         if (isBlank(request.notifyUrl)) {
             request.notifyUrl = config.getTransferNotifyUrl();
         }
+        if (request.authorizationInfo != null && isBlank(request.authorizationInfo.authorizationNotifyUrl)) {
+            request.authorizationInfo.authorizationNotifyUrl = config.getAuthorizationNotifyUrl();
+        }
         if (!isBlank(request.userName)) {
             request.userName = WechatPayUtils.encrypt(config.getWechatPayPublicKey(), request.userName);
         }
